@@ -2124,30 +2124,48 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
   }
 }
 
-/* ===== LANDSCAPE MOBILE ===== */
-@media (max-height: 500px) and (max-width: 900px) {
-  .mob-bottom-nav { height: 46px; }
-  .mob-nav-btn { font-size: 9px; }
-  .mob-nav-btn i { font-size: 17px; }
-  .mob-nav-primary { margin: 4px 2px; }
-  .main-layout { height: calc(100vh - var(--topbar-h) - 46px); }
+/* ===== LANDSCAPE MOBILE — same layout as portrait ===== */
+@media (max-width: 900px) and (orientation: landscape) {
+  .mob-bottom-nav { display: flex; }
+  .main-layout { height: calc(100vh - var(--topbar-h) - 60px); }
   .sidebar {
+    position: fixed !important;
     top: var(--topbar-h) !important;
-    bottom: 46px !important;
-    width: 60% !important;
+    left: -105% !important;
+    bottom: 60px !important;
+    width: 75% !important;
+    max-width: 320px !important;
+    z-index: 1500 !important;
+    transition: left 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+    overflow-y: auto !important;
   }
+  .sidebar.mobile-open { left: 0 !important; }
   #right-panel {
+    position: fixed !important;
     top: var(--topbar-h) !important;
-    bottom: 46px !important;
-    width: 60% !important;
+    right: -105% !important;
+    bottom: 60px !important;
+    width: 75% !important;
+    max-width: 320px !important;
+    z-index: 1500 !important;
+    transition: right 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+    overflow-y: auto !important;
   }
+  #right-panel.mobile-open { right: 0 !important; }
   .route-panel, .measure-panel, .buffer-panel, .analysis-panel {
-    bottom: 46px !important;
+    left: 0 !important; right: 0 !important;
+    bottom: 60px !important;
+    width: auto !important; max-width: 100% !important;
+    border-radius: 14px 14px 0 0 !important;
     max-height: 60vh !important;
+    overflow-y: auto !important;
   }
-  .mob-tools-sheet { bottom: 46px; max-height: 60vh; }
-  .topbar { height: 44px; }
-  .brand-icon { width: 28px; height: 28px; }
+  .mob-tools-sheet { bottom: 60px; max-height: 65vh; }
+  .statusbar { display: none; }
+  .topbar-tools { display: none; }
+  .coord-display { display: none; }
+  .crs-btn { display: none; }
+  .brand-title, .brand-sub { display: none; }
 }
 
 /* ===== PANEL MINIMIZE BUTTON ===== */
