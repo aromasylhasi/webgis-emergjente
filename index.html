@@ -2,7 +2,7 @@
 <html lang="sq">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1200, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="theme-color" content="#1e5abc">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -154,7 +154,42 @@
       </button>
     </div>
   </header>
-  <div class="mobile-backdrop" id="mobile-backdrop" onclick="closeMobileSidebar()"></div>
+  <div class="mobile-backdrop" id="mobile-backdrop" onclick="closeMobileAll()"></div>
+
+  <!-- MOBILE TOOLS BOTTOM SHEET -->
+  <div class="mob-tools-sheet" id="mob-tools-sheet">
+    <div class="mob-sheet-handle"></div>
+    <div class="mob-sheet-title"><i class="ti ti-tools"></i> Veglat e analizës</div>
+    <div class="mob-tools-grid">
+      <button class="mob-tool-btn" id="mob-btn-select" onclick="setTool('select');closeMobileTools()"><i class="ti ti-pointer"></i><span>Selekto</span></button>
+      <button class="mob-tool-btn" onclick="setTool('route');closeMobileTools()"><i class="ti ti-route"></i><span>Rrugëzim</span></button>
+      <button class="mob-tool-btn" onclick="setTool('buffer');closeMobileTools()"><i class="ti ti-circle-dashed"></i><span>Buffer</span></button>
+      <button class="mob-tool-btn" onclick="setTool('measure');closeMobileTools()"><i class="ti ti-ruler"></i><span>Matje</span></button>
+      <button class="mob-tool-btn" onclick="setTool('analyze');closeMobileTools()"><i class="ti ti-chart-dots-3"></i><span>Analiza</span></button>
+      <button class="mob-tool-btn" onclick="downloadData();closeMobileTools()"><i class="ti ti-download"></i><span>Shkarko</span></button>
+      <button class="mob-tool-btn" onclick="showWMSPanel();closeMobileTools()"><i class="ti ti-world"></i><span>WMS/WFS</span></button>
+      <button class="mob-tool-btn" onclick="switchCRS(currentCRS==='WGS84'?'KOSOVAREF01':'WGS84')"><i class="ti ti-map-pin"></i><span id="mob-crs-lbl">WGS84</span></button>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mob-bottom-nav" id="mob-bottom-nav">
+    <button class="mob-nav-btn" id="mob-btn-layers" onclick="toggleMobileSidebar()">
+      <i class="ti ti-layout-sidebar"></i><span>Shtresat</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-btn-tools" onclick="toggleMobileTools()">
+      <i class="ti ti-tools"></i><span>Veglat</span>
+    </button>
+    <button class="mob-nav-btn mob-nav-primary" onclick="openVGIForm()">
+      <i class="ti ti-plus"></i><span>Raporto</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-btn-incidents" onclick="toggleMobileRightPanel()">
+      <i class="ti ti-alert-triangle"></i><span>Incidentet</span>
+    </button>
+    <button class="mob-nav-btn" id="mob-btn-user" onclick="doLogout()">
+      <i class="ti ti-logout"></i><span>Dil</span>
+    </button>
+  </nav>
 
   <!-- MAIN LAYOUT -->
   <div class="main-layout">

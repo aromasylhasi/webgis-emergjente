@@ -2510,6 +2510,9 @@ function switchCRS(crs) {
   const coords = formatCoords(c.lat, c.lng);
   document.getElementById('coord-display').textContent = coords.display;
   document.getElementById('coord-bar').textContent = coords.bar;
+  // update mobile CRS toggle label
+  const mobLbl = document.getElementById('mob-crs-lbl');
+  if (mobLbl) mobLbl.textContent = crs === 'WGS84' ? 'WGS84' : 'KOSOVA';
 }
 
 // ----- STATUS -----
@@ -2960,17 +2963,58 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
-// ===== MOBILE SIDEBAR =====
+// ===== MOBILE NAV =====
 function toggleMobileSidebar() {
   const sb = document.getElementById('sidebar');
-  const bd = document.getElementById('mobile-backdrop');
   const isOpen = sb.classList.contains('mobile-open');
-  if (isOpen) { closeMobileSidebar(); } else {
+  closeMobileAll();
+  if (!isOpen) {
     sb.classList.add('mobile-open');
-    bd.classList.add('active');
+    document.getElementById('mobile-backdrop').classList.add('active');
+    const btn = document.getElementById('mob-btn-layers');
+    if (btn) btn.classList.add('active');
   }
 }
+
+function toggleMobileRightPanel() {
+  const rp = document.getElementById('right-panel');
+  const isOpen = rp && rp.classList.contains('mobile-open');
+  closeMobileAll();
+  if (!isOpen && rp) {
+    rp.classList.add('mobile-open');
+    document.getElementById('mobile-backdrop').classList.add('active');
+    const btn = document.getElementById('mob-btn-incidents');
+    if (btn) btn.classList.add('active');
+  }
+}
+
+function toggleMobileTools() {
+  const sheet = document.getElementById('mob-tools-sheet');
+  const isOpen = sheet && sheet.classList.contains('open');
+  closeMobileAll();
+  if (!isOpen && sheet) {
+    sheet.classList.add('open');
+    document.getElementById('mobile-backdrop').classList.add('active');
+    const btn = document.getElementById('mob-btn-tools');
+    if (btn) btn.classList.add('active');
+  }
+}
+
+function closeMobileTools() {
+  const sheet = document.getElementById('mob-tools-sheet');
+  if (sheet) sheet.classList.remove('open');
+}
+
 function closeMobileSidebar() {
   document.getElementById('sidebar').classList.remove('mobile-open');
+}
+
+function closeMobileAll() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  const rp = document.getElementById('right-panel');
+  if (rp) rp.classList.remove('mobile-open');
+  const sheet = document.getElementById('mob-tools-sheet');
+  if (sheet) sheet.classList.remove('open');
   document.getElementById('mobile-backdrop').classList.remove('active');
+  document.querySelectorAll('.mob-nav-btn').forEach(function(b) { b.classList.remove('active'); });
 }
