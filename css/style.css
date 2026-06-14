@@ -2139,6 +2139,33 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
   .mob-tool-btn:hover { background: var(--bg4); color: var(--text); }
   .mob-tool-btn.active { background: rgba(59,130,246,0.18); color: var(--accent); border-color: var(--accent); }
 
+  /* --- Tool button colors (match desktop palette) --- */
+  .mob-clr-blue   i { color: #3b82f6; }
+  .mob-clr-green  i { color: #10b981; }
+  .mob-clr-purple i { color: #a78bfa; }
+  .mob-clr-teal   i { color: #2dd4bf; }
+  .mob-clr-amber  i { color: #f59e0b; }
+  .mob-clr-gray   i { color: #9aa0b4; }
+  .mob-clr-indigo i { color: #818cf8; }
+  .mob-clr-cyan   i { color: #22d3ee; }
+  .mob-clr-blue   span { color: #3b82f6; }
+  .mob-clr-green  span { color: #10b981; }
+  .mob-clr-purple span { color: #a78bfa; }
+  .mob-clr-teal   span { color: #2dd4bf; }
+  .mob-clr-amber  span { color: #f59e0b; }
+  .mob-clr-indigo span { color: #818cf8; }
+  .mob-clr-cyan   span { color: #22d3ee; }
+
+  /* --- Bottom nav button colors --- */
+  .mob-nav-layers   { color: #3b82f6 !important; }
+  .mob-nav-tools    { color: #a78bfa !important; }
+  .mob-nav-incidents{ color: #f59e0b !important; }
+  .mob-nav-exit     { color: #ef4444 !important; }
+  .mob-nav-layers:hover,   .mob-nav-layers.active   { color: #60a5fa !important; }
+  .mob-nav-tools:hover,    .mob-nav-tools.active    { color: #c4b5fd !important; }
+  .mob-nav-incidents:hover,.mob-nav-incidents.active { color: #fbbf24 !important; }
+  .mob-nav-exit:hover,     .mob-nav-exit.active     { color: #f87171 !important; }
+
   /* --- Modals full-screen friendly --- */
   .modal-overlay .modal-box {
     width: 96% !important; max-width: 96% !important;
