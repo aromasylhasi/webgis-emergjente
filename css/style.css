@@ -1979,9 +1979,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
 /*
   MOBILE RESPONSIVE — covers:
   • Portrait phones  : max-width 768px
-  • Landscape phones : max-height 500px (all phones ~360-430px tall in landscape)
+  • Landscape phones : max-width 932px AND max-height 500px
+    (all phones ≤932px wide in landscape, ~360-430px tall)
+    The width constraint prevents desktop browsers from triggering
+    this when DevTools is open at the bottom (short window height).
 */
-@media (max-width: 768px), (max-height: 500px) {
+@media (max-width: 768px), (max-width: 932px) and (max-height: 500px) {
 
   /* --- Topbar: FIXED so it never moves --- */
   .topbar {
@@ -2173,6 +2176,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
   .mob-nav-tools:hover,    .mob-nav-tools.active    { color: #c4b5fd !important; }
   .mob-nav-incidents:hover,.mob-nav-incidents.active { color: #fbbf24 !important; }
   .mob-nav-exit:hover,     .mob-nav-exit.active     { color: #f87171 !important; }
+
+  /* --- Markers: keep natural size on mobile so colors look identical to web --- */
+  #map.zoom-s .marker-icon,
+  #map.zoom-m .marker-icon { transform: scale(1) !important; }
+  #map.zoom-s .marker-icon:hover,
+  #map.zoom-m .marker-icon:hover { transform: scale(1.1) !important; }
 
   /* --- Modals full-screen friendly --- */
   .modal-overlay .modal-box {

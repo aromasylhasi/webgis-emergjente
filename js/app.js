@@ -86,8 +86,8 @@ let allIncidentMarkers = [];
 let vgiMarkers = [];
 const stationMarkers = { police: [], fire: [], ambulance: [], hospitals: [] };
 
-// Zoom threshold — stations show from zoom 7 so they're visible on mobile too
-const LAYER_THRESH = { stations: 7, incidents: 0, vgi: 8 };
+// Zoom threshold
+const LAYER_THRESH = { stations: 11, incidents: 0, vgi: 10 };
 
 // Gjendja e toggle-it
 const layerEnabled = {
