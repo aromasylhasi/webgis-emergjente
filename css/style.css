@@ -2106,5 +2106,72 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
   .stat-card { min-width: 70px; padding: 6px 8px; }
   .stat-num { font-size: 16px; }
   .stat-label { font-size: 8px; }
+
+  /* --- Tool panels as mobile bottom sheets (above bottom nav) --- */
+  .route-panel, .measure-panel, .buffer-panel, .analysis-panel {
+    left: 0 !important; right: 0 !important;
+    bottom: 60px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    border-radius: 14px 14px 0 0 !important;
+    max-height: 55vh !important;
+    overflow-y: auto !important;
+  }
+  .route-panel.minimized, .measure-panel.minimized,
+  .buffer-panel.minimized, .analysis-panel.minimized {
+    max-height: none !important;
+    overflow: hidden !important;
+  }
 }
+
+/* ===== LANDSCAPE MOBILE ===== */
+@media (max-height: 500px) and (max-width: 900px) {
+  .mob-bottom-nav { height: 46px; }
+  .mob-nav-btn { font-size: 9px; }
+  .mob-nav-btn i { font-size: 17px; }
+  .mob-nav-primary { margin: 4px 2px; }
+  .main-layout { height: calc(100vh - var(--topbar-h) - 46px); }
+  .sidebar {
+    top: var(--topbar-h) !important;
+    bottom: 46px !important;
+    width: 60% !important;
+  }
+  #right-panel {
+    top: var(--topbar-h) !important;
+    bottom: 46px !important;
+    width: 60% !important;
+  }
+  .route-panel, .measure-panel, .buffer-panel, .analysis-panel {
+    bottom: 46px !important;
+    max-height: 60vh !important;
+  }
+  .mob-tools-sheet { bottom: 46px; max-height: 60vh; }
+  .topbar { height: 44px; }
+  .brand-icon { width: 28px; height: 28px; }
+}
+
+/* ===== PANEL MINIMIZE BUTTON ===== */
+.panel-header-actions {
+  display: flex; align-items: center; gap: 4px;
+}
+.panel-min-btn {
+  background: none; border: none; color: var(--text3);
+  font-size: 16px; cursor: pointer; padding: 2px 4px;
+  border-radius: 4px; line-height: 1;
+  transition: color .15s, transform .2s;
+  flex-shrink: 0;
+}
+.panel-min-btn:hover { color: var(--text); }
+
+/* Minimized state — hide body, rotate chevron */
+.route-panel.minimized .rp-body,
+.measure-panel.minimized .mp-body,
+.buffer-panel.minimized .bp-body,
+.analysis-panel.minimized .ap-body,
+.analysis-panel.minimized .ap-tabs { display: none !important; }
+
+.route-panel.minimized .panel-min-btn i,
+.measure-panel.minimized .panel-min-btn i,
+.buffer-panel.minimized .panel-min-btn i,
+.analysis-panel.minimized .panel-min-btn i { transform: rotate(180deg); }
 

@@ -406,7 +406,10 @@
       <div class="analysis-panel" id="analysis-panel" style="display:none">
         <div class="ap-header">
           <div class="ap-title"><i class="ti ti-chart-dots-3"></i><span>Analiza Hapësinore</span></div>
-          <button class="ap-close" onclick="setTool('select')"><i class="ti ti-x"></i></button>
+          <div class="panel-header-actions">
+            <button class="panel-min-btn" onclick="togglePanelMin('analysis-panel')" title="Minimizo/Zgjero"><i class="ti ti-chevron-down"></i></button>
+            <button class="ap-close" onclick="setTool('select')"><i class="ti ti-x"></i></button>
+          </div>
         </div>
 
         <div class="ap-tabs">
@@ -507,7 +510,10 @@
       <div class="route-panel" id="route-panel" style="display:none">
         <div class="rp-header">
           <div class="rp-title"><i class="ti ti-route"></i><span>Rrugëzimi</span></div>
-          <button class="rp-close" onclick="setTool('select')" title="Mbyll"><i class="ti ti-x"></i></button>
+          <div class="panel-header-actions">
+            <button class="panel-min-btn" onclick="togglePanelMin('route-panel')" title="Minimizo/Zgjero"><i class="ti ti-chevron-down"></i></button>
+            <button class="rp-close" onclick="setTool('select')" title="Mbyll"><i class="ti ti-x"></i></button>
+          </div>
         </div>
         <div class="rp-body">
 
@@ -569,9 +575,10 @@
             <i class="ti ti-ruler"></i>
             <span>Matjet</span>
           </div>
-          <button class="mp-close" onclick="setTool('select')" title="Mbyll panelin">
-            <i class="ti ti-x"></i>
-          </button>
+          <div class="panel-header-actions">
+            <button class="panel-min-btn" onclick="togglePanelMin('measure-panel')" title="Minimizo/Zgjero"><i class="ti ti-chevron-down"></i></button>
+            <button class="mp-close" onclick="setTool('select')" title="Mbyll panelin"><i class="ti ti-x"></i></button>
+          </div>
         </div>
         <div class="mp-body">
           <div class="mp-modes">
@@ -618,9 +625,10 @@
             <i class="ti ti-circle-dashed"></i>
             <span>Zona Buffer</span>
           </div>
-          <button class="bp-close" onclick="setTool('select')" title="Mbyll panelin">
-            <i class="ti ti-x"></i>
-          </button>
+          <div class="panel-header-actions">
+            <button class="panel-min-btn" onclick="togglePanelMin('buffer-panel')" title="Minimizo/Zgjero"><i class="ti ti-chevron-down"></i></button>
+            <button class="bp-close" onclick="setTool('select')" title="Mbyll panelin"><i class="ti ti-x"></i></button>
+          </div>
         </div>
         <div class="bp-body">
           <p class="bp-desc">
@@ -650,7 +658,7 @@
           <div class="bp-results" id="bp-results" style="display:none"></div>
 
           <button class="bp-clear-btn" id="bp-clear-btn" onclick="clearBuffer()" style="display:none">
-            <i class="ti ti-circle-x"></i> Largo bufferit
+            <i class="ti ti-circle-x"></i> Largo bufferin
           </button>
         </div>
       </div>
@@ -806,7 +814,7 @@
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('buffer-modal')">Mbyll</button>
         <button class="btn-submit" style="background:var(--danger)" onclick="clearBuffer(); closeModal('buffer-modal')">
-          <i class="ti ti-circle-x"></i> Largo bufferit
+          <i class="ti ti-circle-x"></i> Largo bufferin
         </button>
       </div>
     </div>

@@ -2963,6 +2963,15 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
+// Refresh map size on orientation change (portrait ↔ landscape)
+window.addEventListener('orientationchange', function() {
+  closeMobileAll();
+  setTimeout(function() { if (map) map.invalidateSize(); }, 400);
+});
+window.addEventListener('resize', function() {
+  if (map) map.invalidateSize();
+});
+
 // ===== MOBILE NAV =====
 function toggleMobileSidebar() {
   const sb = document.getElementById('sidebar');
@@ -3009,6 +3018,15 @@ function closeMobileSidebar() {
   document.getElementById('sidebar').classList.remove('mobile-open');
 }
 
+function togglePanelMin(id) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  panel.classList.toggle('minimized');
+  if (window.innerWidth <= 768) {
+    setTimeout(function() { map.invalidateSize(); }, 50);
+  }
+}
+
 function closeMobileAll() {
   document.getElementById('sidebar').classList.remove('mobile-open');
   const rp = document.getElementById('right-panel');
@@ -3017,4 +3035,5 @@ function closeMobileAll() {
   if (sheet) sheet.classList.remove('open');
   document.getElementById('mobile-backdrop').classList.remove('active');
   document.querySelectorAll('.mob-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  setTimeout(function() { if (map) map.invalidateSize(); }, 300);
 }
