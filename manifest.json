@@ -1,14 +1,15 @@
 {
-  "name": "Menaxhimi i Shërbimeve Emergjente",
-  "short_name": "Emergjenca",
+  "name": "Menaxhimi i Shërbimeve Emergjente në Kosovë",
+  "short_name": "Emergjenca KS",
   "description": "WebGIS për menaxhimin e shërbimeve emergjente — Republika e Kosovës",
-  "start_url": "/index.html",
+  "start_url": "/webgis-emergjente/",
+  "scope": "/webgis-emergjente/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0f1117",
+  "background_color": "#0d2a6b",
   "theme_color": "#1e5abc",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
