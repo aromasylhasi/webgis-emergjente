@@ -2054,7 +2054,11 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
     transition: left 0.28s cubic-bezier(0.4,0,0.2,1) !important;
     border-right: 1px solid var(--border2) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
     height: auto !important;
+    pointer-events: all !important;
   }
   .sidebar.mobile-open { left: 0 !important; }
 
@@ -2069,7 +2073,11 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
     z-index: 1500 !important;
     transition: right 0.28s cubic-bezier(0.4,0,0.2,1) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
     height: auto !important;
+    pointer-events: all !important;
   }
   #right-panel.mobile-open { right: 0 !important; }
 

@@ -86,8 +86,8 @@ let allIncidentMarkers = [];
 let vgiMarkers = [];
 const stationMarkers = { police: [], fire: [], ambulance: [], hospitals: [] };
 
-// Zoom threshold
-const LAYER_THRESH = { stations: 11, incidents: 0, vgi: 10 };
+// Zoom threshold — stations show from zoom 7 so they're visible on mobile too
+const LAYER_THRESH = { stations: 7, incidents: 0, vgi: 8 };
 
 // Gjendja e toggle-it
 const layerEnabled = {
@@ -2971,6 +2971,19 @@ window.addEventListener('orientationchange', function() {
 window.addEventListener('resize', function() {
   if (map) map.invalidateSize();
 });
+
+// Prevent sidebar / right-panel clicks from bubbling to backdrop
+(function() {
+  var panels = ['sidebar', 'right-panel', 'mob-tools-sheet'];
+  panels.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click',      function(e) { e.stopPropagation(); });
+    el.addEventListener('touchstart', function(e) { e.stopPropagation(); }, { passive: true });
+    el.addEventListener('touchend',   function(e) { e.stopPropagation(); });
+    el.addEventListener('touchmove',  function(e) { e.stopPropagation(); }, { passive: true });
+  });
+})();
 
 // ===== MOBILE NAV =====
 function toggleMobileSidebar() {
