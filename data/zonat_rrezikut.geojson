@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "name": "Zonat e Rrezikut — Kosovë",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    { "type":"Feature", "properties":{ "lloji":"vershim",    "emri":"Zona vërshimit — Lumi Sitnica",        "rreziku":"i lartë" }, "geometry":{ "type":"Polygon", "coordinates":[[[20.9,42.75],[21.0,42.75],[21.0,42.82],[20.9,42.82],[20.9,42.75]]] } },
+    { "type":"Feature", "properties":{ "lloji":"zjarr_pyjor","emri":"Zona rreziku zjarrit pyjor — Kaçanik", "rreziku":"mesatar" }, "geometry":{ "type":"Polygon", "coordinates":[[[21.2,42.22],[21.35,42.22],[21.35,42.32],[21.2,42.32],[21.2,42.22]]] } },
+    { "type":"Feature", "properties":{ "lloji":"rrëshqitje", "emri":"Zona rrëshqitjes — Rugova",            "rreziku":"mesatar" }, "geometry":{ "type":"Polygon", "coordinates":[[[20.05,42.65],[20.2,42.65],[20.2,42.73],[20.05,42.73],[20.05,42.65]]] } }
+  ]
+}

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e5abc">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Emergjenca">
+  <link rel="manifest" href="manifest.json">
+  <title>Menaxhimi i Shërbimeve Emergjente — Republika e Kosovës</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+      <div class="login-brand">
+        <div class="login-brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 42" width="44" height="44">
+            <defs>
+              <linearGradient id="lg-login" x1="0" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stop-color="#1e5abc"/>
+                <stop offset="100%" stop-color="#0d2a6b"/>
+              </linearGradient>
+            </defs>
+            <path d="M5,4 L35,4 L35,21 C35,32 20,41 20,41 C20,41 5,32 5,21 Z" fill="url(#lg-login)"/>
+            <path d="M5,4 L35,4 L35,21 C35,32 20,41 20,41 C20,41 5,32 5,21 Z" fill="none" stroke="#D4AF37" stroke-width="1.8"/>
+            <g fill="#D4AF37">
+              <polygon transform="translate(10,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+              <polygon transform="translate(14,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+              <polygon transform="translate(18,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+              <polygon transform="translate(22,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+              <polygon transform="translate(26,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+              <polygon transform="translate(30,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+            </g>
+            <line x1="8" y1="17" x2="32" y2="17" stroke="#D4AF37" stroke-width="0.8" opacity="0.6"/>
+            <path d="M16,29 C16,23 18.5,22 20,22 C21.5,22 24,23 24,29 Z" fill="#FFD700"/>
+            <rect x="14" y="29" width="12" height="2.5" rx="1.2" fill="#FFD700"/>
+            <rect x="19" y="31.5" width="2" height="2.5" rx="1" fill="#FFD700"/>
+            <rect x="16.5" y="34" width="7" height="2" rx="1" fill="#FFD700"/>
+            <line x1="15" y1="25" x2="12" y2="22" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14.5" y1="28" x2="11.5" y2="27" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="25" y1="25" x2="28" y2="22" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="25.5" y1="28" x2="28.5" y2="27" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="login-brand-text">
+          <div class="login-brand-title">Menaxhimi i Shërbimeve Emergjente</div>
+          <div class="login-brand-sub">Republika e Kosovës</div>
+        </div>
+      </div>
+      <div class="login-form">
+        <div class="login-input-wrap">
+          <i class="ti ti-user"></i>
+          <input type="text" id="login-user" placeholder="Emri i përdoruesit" autocomplete="username" onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <div class="login-input-wrap">
+          <i class="ti ti-lock"></i>
+          <input type="password" id="login-pass" placeholder="Fjalëkalimi" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <div class="login-error" id="login-error"></div>
+        <button class="login-btn" onclick="doLogin()"><i class="ti ti-login"></i> Kyçu</button>
+      </div>
+      <div class="login-hint">
+        <div class="hint-row"><span class="hint-role citizen-role"><i class="ti ti-user"></i> Qytetar</span><span class="hint-cred">qytetar / 1234</span></div>
+        <div class="hint-row"><span class="hint-role operator-role"><i class="ti ti-shield-check"></i> Operator</span><span class="hint-cred">operator / admin</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 42" width="34" height="34">
+          <defs>
+            <linearGradient id="lg-top" x1="0" y1="0" x2="0.5" y2="1">
+              <stop offset="0%" stop-color="#1e5abc"/>
+              <stop offset="100%" stop-color="#0d2a6b"/>
+            </linearGradient>
+          </defs>
+          <path d="M5,4 L35,4 L35,21 C35,32 20,41 20,41 C20,41 5,32 5,21 Z" fill="url(#lg-top)"/>
+          <path d="M5,4 L35,4 L35,21 C35,32 20,41 20,41 C20,41 5,32 5,21 Z" fill="none" stroke="#D4AF37" stroke-width="1.8"/>
+          <g fill="#D4AF37">
+            <polygon transform="translate(10,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+            <polygon transform="translate(14,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+            <polygon transform="translate(18,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+            <polygon transform="translate(22,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+            <polygon transform="translate(26,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+            <polygon transform="translate(30,12)" points="0,-2.2 0.5,-0.688 2.093,-0.680 0.808,0.263 1.293,1.780 0,0.85 -1.293,1.780 -0.808,0.263 -2.093,-0.680 -0.5,-0.688"/>
+          </g>
+          <line x1="8" y1="17" x2="32" y2="17" stroke="#D4AF37" stroke-width="0.8" opacity="0.6"/>
+          <path d="M16,29 C16,23 18.5,22 20,22 C21.5,22 24,23 24,29 Z" fill="#FFD700"/>
+          <rect x="14" y="29" width="12" height="2.5" rx="1.2" fill="#FFD700"/>
+          <rect x="19" y="31.5" width="2" height="2.5" rx="1" fill="#FFD700"/>
+          <rect x="16.5" y="34" width="7" height="2" rx="1" fill="#FFD700"/>
+          <line x1="15" y1="25" x2="12" y2="22" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="14.5" y1="28" x2="11.5" y2="27" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="25" y1="25" x2="28" y2="22" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="25.5" y1="28" x2="28.5" y2="27" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">Menaxhimi i Shërbimeve Emergjente</div>
+        <div class="brand-sub">Republika e Kosovës</div>
+      </div>
+    </div>
+
+    <nav class="topbar-tools">
+      <button class="tool-btn active" id="btn-select" title="Selekto" onclick="setTool('select')">
+        <i class="ti ti-pointer"></i><span>Selekto</span>
+      </button>
+      <button class="tool-btn" id="btn-route" title="Rrugëzim" onclick="setTool('route')">
+        <i class="ti ti-route"></i><span>Rrugëzim</span>
+      </button>
+      <button class="tool-btn" id="btn-buffer" title="Buffer" onclick="setTool('buffer')">
+        <i class="ti ti-circle-dashed"></i><span>Buffer</span>
+      </button>
+      <button class="tool-btn" id="btn-measure" title="Mat distancën" onclick="setTool('measure')">
+        <i class="ti ti-ruler"></i><span>Matje</span>
+      </button>
+      <button class="tool-btn" id="btn-analyze" title="Analiza hapësinore" onclick="setTool('analyze')">
+        <i class="ti ti-chart-dots-3"></i><span>Analiza</span>
+      </button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="btn-download" title="Shkarko të dhëna" onclick="downloadData()">
+        <i class="ti ti-download"></i><span>Shkarko</span>
+      </button>
+      <button class="tool-btn" id="btn-wms" title="Web Services" onclick="showWMSPanel()">
+        <i class="ti ti-world"></i><span>WMS/WFS</span>
+      </button>
+    </nav>
+
+    <div class="topbar-right">
+      <div class="live-badge"><span class="pulse-dot"></span>Live</div>
+      <div class="crs-selector">
+        <button class="crs-btn active" id="crs-btn-wgs84" onclick="switchCRS('WGS84')">WGS84</button>
+        <button class="crs-btn" id="crs-btn-kosovaref01" onclick="switchCRS('KOSOVAREF01')">KOSOVAREF01</button>
+      </div>
+      <div class="coord-display" id="coord-display">42.6629°N, 21.1655°E</div>
+      <button class="vgi-btn" onclick="openVGIForm()">
+        <i class="ti ti-plus"></i> Raporto Incident
+      </button>
+      <div class="user-badge" id="user-badge"><i class="ti ti-user"></i> Qytetar</div>
+      <button class="logout-btn" id="logout-btn" onclick="doLogout()" title="Çkyçu" style="display:none"><i class="ti ti-logout"></i></button>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileSidebar()" title="Menu">
+        <i class="ti ti-menu-2"></i>
+      </button>
+    </div>
+  </header>
+  <div class="mobile-backdrop" id="mobile-backdrop" onclick="closeMobileSidebar()"></div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Stats -->
+      <div class="stats-header">
+        <i class="ti ti-activity-heartbeat"></i> Incidentet dhe ekipet aktive
+      </div>
+      <div class="sidebar-stats">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-active">0</div>
+          <div class="stat-lbl">Incidente aktive</div>
+        </div>
+        <div class="stat-card police" title="Automjete policore aktive">
+          <div class="stat-num" id="stat-police">0</div>
+          <div class="stat-lbl">Automjete pol.</div>
+        </div>
+        <div class="stat-card fire" title="Automjete zjarrfikëse aktive">
+          <div class="stat-num" id="stat-fire">0</div>
+          <div class="stat-lbl">Automjete zjarrfik.</div>
+        </div>
+        <div class="stat-card amb" title="Ambulanca aktive">
+          <div class="stat-num" id="stat-amb">0</div>
+          <div class="stat-lbl">Ambulanca</div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="sidebar-search-wrap">
+        <div class="sidebar-search">
+          <i class="ti ti-search"></i>
+          <input type="text" id="search-input"
+                 placeholder="Kërko rrugë, adresë, incident..."
+                 oninput="handleSearch(this.value)"
+                 onkeydown="handleSearchKey(event)"
+                 autocomplete="off">
+          <button class="search-clear-btn" id="search-clear-btn" onclick="clearSearch()" style="display:none" title="Pastro">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+        <div class="search-results" id="search-results" style="display:none"></div>
+      </div>
+
+      <!-- Layers -->
+      <div class="sidebar-section">
+        <div class="section-title">
+          <i class="ti ti-layers"></i> Shtresat
+        </div>
+        <div class="layer-list" id="layer-list">
+          <div class="layer-item" data-layer="police">
+            <div class="layer-dot" style="background:#2563eb"></div>
+            <span class="layer-name">Stacionet policore</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleLayer('police', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item" data-layer="fire">
+            <div class="layer-dot" style="background:#dc2626"></div>
+            <span class="layer-name">Stacionet zjarrfikës</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleLayer('fire', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item" data-layer="ambulance">
+            <div class="layer-dot" style="background:#059669"></div>
+            <span class="layer-name">Ambulancat / QKMF</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleLayer('ambulance', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item" data-layer="hospitals">
+            <div class="layer-dot" style="background:#7c3aed"></div>
+            <span class="layer-name">Spitalet</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleLayer('hospitals', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item" data-layer="incidents">
+            <div class="layer-dot" style="background:#d97706"></div>
+            <span class="layer-name">Incidentet aktive</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleLayer('incidents', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item" data-layer="vgi">
+            <div class="layer-dot" style="background:#db2777"></div>
+            <span class="layer-name">Raportet VGI</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleLayer('vgi', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="layer-item" data-layer="roads">
+            <div class="layer-dot" style="background:#f97316;border-radius:2px"></div>
+            <span class="layer-name">Rrugët</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="roads-checkbox" onchange="toggleLayer('roads', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="roads-inline-legend" id="roads-legend-section" style="display:none">
+            <div class="ril-row"><div class="ril-line" style="background:#e8694a;height:6px"></div><span>Autostradë</span></div>
+            <div class="ril-row"><div class="ril-line" style="background:#f9a938;height:5px"></div><span>Rrugë primare</span></div>
+            <div class="ril-row"><div class="ril-line" style="background:#ffd966;height:4px"></div><span>Rrugë dytësore</span></div>
+            <div class="ril-row"><div class="ril-line" style="background:#d1d5db;height:3px"></div><span>Rrugë lokale</span></div>
+          </div>
+          <div class="layer-sep"></div>
+          <div class="layer-item layer-boundary" data-layer="border">
+            <div class="layer-dot" style="background:#d1d5db;border-radius:2px"></div>
+            <span class="layer-name">Kufiri i Kosovës</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleBoundary('border', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item layer-boundary" data-layer="regions">
+            <div class="layer-dot" style="background:#5eead4;border-radius:2px"></div>
+            <span class="layer-name">Rajonet</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleBoundary('regions', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="layer-item layer-boundary" data-layer="municipalities">
+            <div class="layer-dot" style="background:#fbbf24;border-radius:2px"></div>
+            <span class="layer-name">Komunat</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked onchange="toggleBoundary('municipalities', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter by type -->
+      <div class="sidebar-section">
+        <div class="section-title">
+          <i class="ti ti-filter"></i> Filtro sipas llojit
+        </div>
+        <div class="filter-chips" id="filter-chips">
+          <button class="chip active" onclick="filterIncidents('all')">Të gjitha</button>
+          <button class="chip police" onclick="filterIncidents('policia')">Policia</button>
+          <button class="chip fire" onclick="filterIncidents('zjarrfikes')">Zjarrfikës</button>
+          <button class="chip amb" onclick="filterIncidents('ambulance')">Ambulancë</button>
+        </div>
+      </div>
+
+      <!-- Symbolization -->
+      <div class="sidebar-section">
+        <div class="section-title">
+          <i class="ti ti-palette"></i> Simbolizim i incidenteve
+        </div>
+        <div class="sym-options">
+          <label class="sym-option">
+            <input type="radio" name="symbolization" value="type" onchange="changeSymbolization('type')">
+            <span class="sym-dots">
+              <span class="sym-dot" style="background:#2563eb"></span>
+              <span class="sym-dot" style="background:#dc2626"></span>
+              <span class="sym-dot" style="background:#059669"></span>
+            </span>
+            <span>Sipas shërbimit</span>
+          </label>
+          <label class="sym-option">
+            <input type="radio" name="symbolization" value="severity" checked onchange="changeSymbolization('severity')">
+            <span class="sym-dots">
+              <span class="sym-dot" style="background:#dc2626"></span>
+              <span class="sym-dot" style="background:#d97706"></span>
+              <span class="sym-dot" style="background:#059669"></span>
+            </span>
+            <span>Sipas ashpërsisë</span>
+          </label>
+          <label class="sym-option">
+            <input type="radio" name="symbolization" value="status" onchange="changeSymbolization('status')">
+            <span class="sym-dots">
+              <span class="sym-dot" style="background:#dc2626"></span>
+              <span class="sym-dot" style="background:#d97706"></span>
+              <span class="sym-dot" style="background:#4b5563"></span>
+            </span>
+            <span>Sipas statusit</span>
+          </label>
+        </div>
+        <div class="sym-legend" id="sym-legend"></div>
+      </div>
+
+      <!-- Basemap -->
+      <div class="sidebar-section">
+        <div class="section-title">
+          <i class="ti ti-map"></i> Harta bazë
+        </div>
+        <div class="basemap-options">
+          <button class="bm-btn" onclick="setBasemap('osm', this)">OSM</button>
+          <button class="bm-btn" onclick="setBasemap('topo', this)">Topografi</button>
+          <button class="bm-btn active" onclick="setBasemap('satellite', this)">Satelit</button>
+          <button class="bm-btn" onclick="setBasemap('dark', this)">Errët</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- MAP -->
+    <div class="map-container">
+      <div id="map"></div>
+
+      <!-- ANALYSIS PANEL -->
+      <div class="analysis-panel" id="analysis-panel" style="display:none">
+        <div class="ap-header">
+          <div class="ap-title"><i class="ti ti-chart-dots-3"></i><span>Analiza Hapësinore</span></div>
+          <button class="ap-close" onclick="setTool('select')"><i class="ti ti-x"></i></button>
+        </div>
+
+        <div class="ap-tabs">
+          <button class="ap-tab active" id="apt-iso" onclick="switchAnalysisTab('iso')">
+            <i class="ti ti-clock-hour-3"></i> Izokronet
+          </button>
+          <button class="ap-tab" id="apt-nf" onclick="switchAnalysisTab('nf')">
+            <i class="ti ti-map-pin-bolt"></i> Njësia Afërt
+          </button>
+          <button class="ap-tab" id="apt-stat" onclick="switchAnalysisTab('stat')">
+            <i class="ti ti-chart-bar"></i> Statistika
+          </button>
+        </div>
+
+        <!-- TAB: Izokronet -->
+        <div class="ap-content active" id="apc-iso">
+          <div class="ap-field">
+            <label>Burimi</label>
+            <select id="iso-source" onchange="onIsoSourceChange()">
+              <option value="police">Stacionet Policore</option>
+              <option value="fire">Stacionet Zjarrfikës</option>
+              <option value="ambulance">Ambulancat / QKMF</option>
+              <option value="hospital">Spitalet</option>
+              <option value="map">Kliko në hartë</option>
+            </select>
+          </div>
+          <div class="ap-field">
+            <label>Intervalet kohore (minuta)</label>
+            <div class="iso-intervals">
+              <label class="iso-check"><input type="checkbox" value="5"  checked><span class="iso-dot" style="background:#10b981"></span>5 min</label>
+              <label class="iso-check"><input type="checkbox" value="10" checked><span class="iso-dot" style="background:#f59e0b"></span>10 min</label>
+              <label class="iso-check"><input type="checkbox" value="15" checked><span class="iso-dot" style="background:#ef4444"></span>15 min</label>
+              <label class="iso-check"><input type="checkbox" value="20"       ><span class="iso-dot" style="background:#7c3aed"></span>20 min</label>
+            </div>
+          </div>
+          <div class="ap-hint" id="iso-hint" style="display:none">
+            <i class="ti ti-map-pin"></i>
+            <span>Kliko në hartë për të vendosur pikën e izokronit</span>
+          </div>
+          <div class="ap-actions">
+            <button class="ap-btn-primary" onclick="generateIsochrones()">
+              <i class="ti ti-circle-dashed"></i> Gjenero
+            </button>
+            <button class="ap-btn-clr" id="iso-clear-btn" onclick="clearIsochrones()" style="display:none" title="Largo">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+          <div class="iso-legend" id="iso-legend" style="display:none">
+            <div class="iso-leg-row"><div class="iso-swatch" style="background:rgba(16,185,129,.45)"></div><span>≤ 5 min</span></div>
+            <div class="iso-leg-row"><div class="iso-swatch" style="background:rgba(245,158,11,.4)"></div><span>5 – 10 min</span></div>
+            <div class="iso-leg-row"><div class="iso-swatch" style="background:rgba(239,68,68,.35)"></div><span>10 – 15 min</span></div>
+            <div class="iso-leg-row"><div class="iso-swatch" style="background:rgba(124,58,237,.3)"></div><span>15 – 20 min</span></div>
+            <div class="iso-note">* Vlerësim i bazuar në shpejtësi mesatare rrugore</div>
+          </div>
+        </div>
+
+        <!-- TAB: Nearest Facility -->
+        <div class="ap-content" id="apc-nf">
+          <div class="ap-hint" id="nf-hint">
+            <i class="ti ti-hand-click"></i>
+            <span>Kliko mbi hartë ose mbi incident për të gjetur njësinë emergjente më të afërt</span>
+          </div>
+          <div class="nf-results" id="nf-results" style="display:none"></div>
+          <button class="ap-btn-clr ap-btn-clr-full" id="nf-clear-btn" onclick="clearNearestFacility()" style="display:none">
+            <i class="ti ti-map-pin-off"></i> Largo lokacionin e zgjedhur
+          </button>
+        </div>
+
+        <!-- TAB: Statistika -->
+        <div class="ap-content" id="apc-stat">
+          <div class="stat-overview" id="stat-overview"></div>
+          <div class="ap-field">
+            <label>Lloji i të dhënave</label>
+            <select id="stat-type">
+              <option value="incidents">Incidentet aktive</option>
+              <option value="police">Stacionet Policore</option>
+              <option value="fire">Stacionet Zjarrfikës</option>
+              <option value="ambulance">Ambulancat / QKMF</option>
+              <option value="hospitals">Spitalet</option>
+            </select>
+          </div>
+          <div class="ap-actions">
+            <button class="ap-btn-primary" onclick="generateStats()">
+              <i class="ti ti-chart-bar"></i> Gjenero
+            </button>
+            <button class="ap-btn-clr" id="stat-clear-btn" onclick="clearStats()" style="display:none" title="Largo">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+          <div class="stat-legend" id="stat-legend" style="display:none"></div>
+          <div class="stat-table-wrap" id="stat-table-wrap" style="display:none">
+            <table class="stat-table" id="stat-table"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROUTE PANEL -->
+      <div class="route-panel" id="route-panel" style="display:none">
+        <div class="rp-header">
+          <div class="rp-title"><i class="ti ti-route"></i><span>Rrugëzimi</span></div>
+          <button class="rp-close" onclick="setTool('select')" title="Mbyll"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="rp-body">
+
+          <button class="rp-myloc-btn" id="rp-myloc-btn" onclick="useMyLocation()" title="Përdor lokacionin tim aktual">
+            <i class="ti ti-current-location"></i>
+            <span>Lokacioni im</span>
+          </button>
+
+          <div class="rp-wps">
+            <div class="rp-wp" id="rp-wp-a">
+              <span class="rp-badge rp-badge-a">A</span>
+              <span class="rp-wp-lbl" id="rp-lbl-a">Kliko hartën — pika nisuese</span>
+              <button class="rp-wp-del" id="rp-del-a" onclick="clearRoutePoint('a')" style="display:none" title="Largo"><i class="ti ti-x"></i></button>
+            </div>
+            <div class="rp-connector"><i class="ti ti-dots-vertical"></i></div>
+            <div class="rp-wp" id="rp-wp-b">
+              <span class="rp-badge rp-badge-b">B</span>
+              <span class="rp-wp-lbl" id="rp-lbl-b">Kliko hartën — destinacioni</span>
+              <button class="rp-wp-del" id="rp-del-b" onclick="clearRoutePoint('b')" style="display:none" title="Largo"><i class="ti ti-x"></i></button>
+            </div>
+          </div>
+
+          <div class="rp-traffic-row">
+            <div class="rp-traffic-left">
+              <i class="ti ti-traffic-cone rp-tc-icon" id="rp-tc-icon"></i>
+              <div>
+                <div class="rp-traffic-title">Ngarkesa e trafikut</div>
+                <div class="rp-traffic-status" id="rp-traffic-status">—</div>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="rp-traffic-on" checked onchange="onTrafficToggle()">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="rp-hint" id="rp-hint">
+            <i class="ti ti-map-pin"></i>
+            <span id="rp-hint-text">Kliko mbi hartë ose mbi marker për pikën <strong>A</strong></span>
+          </div>
+
+          <div class="rp-quick" id="rp-quick" style="display:none">
+            <div class="rp-quick-title"><i class="ti ti-bolt"></i> Destinacione të shpejta</div>
+            <div class="rp-quick-list" id="rp-quick-list"></div>
+          </div>
+
+          <div class="rp-result" id="rp-result" style="display:none"></div>
+
+          <button class="rp-clear-btn" id="rp-clear-btn" onclick="clearRoute()" style="display:none">
+            <i class="ti ti-trash"></i> Largo rrugën
+          </button>
+        </div>
+      </div>
+
+      <!-- MEASURE PANEL -->
+      <div class="measure-panel" id="measure-panel" style="display:none">
+        <div class="mp-header">
+          <div class="mp-title">
+            <i class="ti ti-ruler"></i>
+            <span>Matjet</span>
+          </div>
+          <button class="mp-close" onclick="setTool('select')" title="Mbyll panelin">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+        <div class="mp-body">
+          <div class="mp-modes">
+            <button class="mp-mode active" id="mp-mode-dist" onclick="setMeasureMode('distance')">
+              <i class="ti ti-ruler-measure"></i> Gjatësia
+            </button>
+            <button class="mp-mode" id="mp-mode-area" onclick="setMeasureMode('area')">
+              <i class="ti ti-vector-triangle"></i> Sipërfaqja
+            </button>
+          </div>
+
+          <div class="mp-hint active" id="mp-hint-dist">
+            <i class="ti ti-map-pin"></i>
+            <span>Kliko pikat në hartë për të matur gjatësinë. Shtype <strong>Enter</strong> ose kliko <strong>Përfundo</strong>.</span>
+          </div>
+          <div class="mp-hint" id="mp-hint-area">
+            <i class="ti ti-map-pin"></i>
+            <span>Kliko të paktën <strong>3 pika</strong> për të matur sipërfaqen. Shtype <strong>Enter</strong> ose kliko <strong>Përfundo</strong>.</span>
+          </div>
+
+          <div class="mp-live" id="mp-live" style="display:none"></div>
+
+          <div class="mp-actions" id="mp-actions" style="display:none">
+            <button class="mp-finish-btn" onclick="finishMeasure()">
+              <i class="ti ti-check"></i> Përfundo
+            </button>
+            <button class="mp-cancel-btn" onclick="cancelMeasure()">
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+
+          <div class="mp-saved-list" id="mp-saved-list" style="display:none"></div>
+
+          <button class="mp-clear-btn" id="mp-clear-btn" onclick="clearMeasure()" style="display:none">
+            <i class="ti ti-trash"></i> Largo të gjitha matjet
+          </button>
+        </div>
+      </div>
+
+      <!-- BUFFER PANEL -->
+      <div class="buffer-panel" id="buffer-panel" style="display:none">
+        <div class="bp-header">
+          <div class="bp-title">
+            <i class="ti ti-circle-dashed"></i>
+            <span>Zona Buffer</span>
+          </div>
+          <button class="bp-close" onclick="setTool('select')" title="Mbyll panelin">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+        <div class="bp-body">
+          <p class="bp-desc">
+            <i class="ti ti-info-circle"></i>
+            Zona buffer krijon një rreth rreth pikës së zgjedhur dhe identifikon të gjitha incidentet dhe institucionet emergjente brenda saj. Fut rrezen dhe klikoni mbi hartë.
+          </p>
+
+          <div class="bp-field">
+            <label>Rrezja e bufferit (kilometra)</label>
+            <div class="bp-radius-wrap">
+              <input type="number" id="buffer-radius" value="5" min="1" max="200" step="0.5" oninput="syncSliderFromInput()">
+              <span class="bp-unit">km</span>
+            </div>
+            <input type="range" id="buffer-slider" min="1" max="50" value="5" step="0.5" oninput="syncInputFromSlider(this.value)">
+            <div class="bp-range-labels">
+              <span>1 km</span>
+              <span id="bp-slider-val">5.0 km</span>
+              <span>50 km</span>
+            </div>
+          </div>
+
+          <div class="bp-step" id="bp-step-click">
+            <i class="ti ti-map-pin"></i>
+            <span>Kliko në hartë për të vendosur qendrën e bufferit</span>
+          </div>
+
+          <div class="bp-results" id="bp-results" style="display:none"></div>
+
+          <button class="bp-clear-btn" id="bp-clear-btn" onclick="clearBuffer()" style="display:none">
+            <i class="ti ti-circle-x"></i> Largo bufferit
+          </button>
+        </div>
+      </div>
+
+      <!-- Map scale info -->
+      <div class="map-info-bar">
+        <span id="scale-display">Shkalla: 1:150,000</span>
+        <span id="zoom-display">Zoom: 10</span>
+        <span id="crs-display">EPSG:4326 — WGS84</span>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel" id="right-panel">
+      <div class="panel-header">
+        <span class="panel-title" id="panel-title"><i class="ti ti-alert-triangle"></i> Incidentet aktive</span>
+        <span class="inc-badge" id="inc-count">0</span>
+      </div>
+
+      <!-- Tabs — vetëm për operator -->
+      <div class="panel-tabs" id="panel-tabs" style="display:none">
+        <button class="tab-btn active" data-tab="incidents" onclick="switchTab('incidents')"><i class="ti ti-alert-triangle"></i> Incidentet</button>
+        <button class="tab-btn" data-tab="vgi" onclick="switchTab('vgi')"><i class="ti ti-users"></i> VGI</button>
+        <button class="tab-btn" data-tab="db" onclick="switchTab('db')"><i class="ti ti-database"></i> Databaza</button>
+      </div>
+
+      <!-- Tab: Incidentet (default) -->
+      <div class="tab-content" id="tab-incidents">
+        <div class="incident-list" id="incident-list">
+          <!-- Populated by JS -->
+        </div>
+        <div class="vgi-section">
+          <div class="vgi-title"><i class="ti ti-users"></i> VGI — Raporte qytetare</div>
+          <div class="vgi-pending" id="vgi-pending">duke ngarkuar...</div>
+          <button class="vgi-view-btn" onclick="showVGIReports()">
+            Shiko raportet <i class="ti ti-arrow-right"></i>
+          </button>
+        </div>
+        <div class="wfs-section">
+          <div class="vgi-title"><i class="ti ti-api"></i> Web Services</div>
+          <div class="ws-links">
+            <a class="ws-link" href="#" onclick="copyWMS()"><i class="ti ti-copy"></i> WMS URL</a>
+            <a class="ws-link" href="#" onclick="copyWFS()"><i class="ti ti-copy"></i> WFS URL</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: VGI menaxhim (operator) -->
+      <div class="tab-content" id="tab-vgi" style="display:none">
+        <div class="op-vgi-list" id="op-vgi-list"></div>
+      </div>
+
+      <!-- Tab: Databaza (operator) -->
+      <div class="tab-content" id="tab-db" style="display:none">
+        <div class="db-editor" id="db-editor"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- STATUS BAR -->
+  <footer class="statusbar">
+    <span id="status-msg"><i class="ti ti-check"></i> Sistemi aktiv — të dhënat e përditësuara</span>
+    <span class="statusbar-center" id="coord-bar">Lat: — | Lon: —</span>
+    <span id="feature-count">Objekte: duke ngarkuar...</span>
+  </footer>
+
+  <!-- VGI MODAL -->
+  <div class="modal-overlay" id="vgi-modal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="ti ti-map-pin-plus"></i> Raporto Incident</h2>
+        <button class="modal-close" onclick="closeModal('vgi-modal')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Lloji i incidentit *</label>
+          <select id="vgi-type">
+            <option value="">Zgjidh llojin...</option>
+            <optgroup label="Policia">
+              <option value="aksident_rrugor">Aksident rrugor</option>
+              <option value="krim">Krim / vjedhje</option>
+              <option value="trazire">Trazirat publike</option>
+              <option value="bllokade">Bllokadë rrugore</option>
+            </optgroup>
+            <optgroup label="Zjarrfikës">
+              <option value="zjarr_urban">Zjarr — banesë / ndërtesë</option>
+              <option value="zjarr_pyjor">Zjarr pyjor</option>
+              <option value="shperth">Shpërthim</option>
+              <option value="vershim">Vërshim</option>
+            </optgroup>
+            <optgroup label="Ambulancë">
+              <option value="urgjence_mjek">Urgjencë mjekësore</option>
+              <option value="trauma">Trauma / lëndim</option>
+              <option value="aksid_industrial">Aksident industrial</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Ashpërsia *</label>
+          <div class="severity-btns">
+            <button class="sev-btn high" onclick="selectSev(this,'high')">E lartë</button>
+            <button class="sev-btn med active" onclick="selectSev(this,'med')">Mesatare</button>
+            <button class="sev-btn low" onclick="selectSev(this,'low')">E ulët</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Vendndodhja *</label>
+          <div class="loc-row">
+            <input type="text" id="vgi-location" placeholder="Adresa ose përshkrimi...">
+            <button class="loc-btn" onclick="pickOnMap()"><i class="ti ti-map-pin"></i> Zgjidh në hartë</button>
+          </div>
+          <div class="coord-preview" id="vgi-coords">Koordinatat do të shfaqen këtu pas zgjedhjes në hartë</div>
+        </div>
+        <div class="form-row">
+          <label>Përshkrimi</label>
+          <textarea id="vgi-desc" rows="3" placeholder="Çfarë po ndodh? Jep sa më shumë detaje..."></textarea>
+        </div>
+        <div class="form-row">
+          <label>Emri (opsional)</label>
+          <input type="text" id="vgi-name" placeholder="Emri juaj...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('vgi-modal')">Anulo</button>
+        <button class="btn-submit" onclick="submitVGI()"><i class="ti ti-send"></i> Dërgo Raportin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP DETAIL -->
+  <div class="modal-overlay" id="detail-modal" style="display:none">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="detail-title">Detajet</h2>
+        <button class="modal-close" onclick="closeModal('detail-modal')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="modal-body" id="detail-body"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('detail-modal')">Mbyll</button>
+        <button class="btn-submit" onclick="findNearest()"><i class="ti ti-route"></i> Gjej njësinë më të afërt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUFFER ANALYSIS MODAL -->
+  <div class="modal-overlay" id="buffer-modal" style="display:none">
+    <div class="modal modal-buffer">
+      <div class="modal-header">
+        <h2><i class="ti ti-circle-dashed" style="color:#f59e0b"></i> Analiza e Zonës Buffer</h2>
+        <button class="modal-close" onclick="closeModal('buffer-modal')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="modal-body" id="buffer-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('buffer-modal')">Mbyll</button>
+        <button class="btn-submit" style="background:var(--danger)" onclick="clearBuffer(); closeModal('buffer-modal')">
+          <i class="ti ti-circle-x"></i> Largo bufferit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VGI REPORTS LIST MODAL -->
+  <div class="modal-overlay" id="vgi-list-modal" style="display:none" onclick="if(event.target===this)closeModal('vgi-list-modal')">
+    <div class="modal modal-vgi-list">
+      <div class="modal-header">
+        <h2><i class="ti ti-users" style="color:var(--vgi)"></i> Raportet VGI — Qytetarë</h2>
+        <button class="modal-close" onclick="closeModal('vgi-list-modal')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="vgi-list-filters" id="vgi-list-filters">
+        <button class="vgi-filter-btn active" data-f="all"            onclick="filterVGIList('all',this)">Të gjitha <span id="vgi-f-all">0</span></button>
+        <button class="vgi-filter-btn" data-f="pa_verifikuar"         onclick="filterVGIList('pa_verifikuar',this)"><span class="vgi-dot pv"></span>Në pritje <span id="vgi-f-pv">0</span></button>
+        <button class="vgi-filter-btn" data-f="konfirmuar"            onclick="filterVGIList('konfirmuar',this)"><span class="vgi-dot ko"></span>Konfirmuar <span id="vgi-f-ko">0</span></button>
+        <button class="vgi-filter-btn" data-f="refuzuar"              onclick="filterVGIList('refuzuar',this)"><span class="vgi-dot re"></span>Refuzuar <span id="vgi-f-re">0</span></button>
+      </div>
+      <div class="vgi-list-body" id="vgi-list-body"></div>
+    </div>
+  </div>
+
+  <!-- WMS / WFS MODAL -->
+  <div class="modal-overlay" id="wms-modal" style="display:none" onclick="if(event.target===this)closeModal('wms-modal')">
+    <div class="modal modal-wms">
+      <div class="modal-header">
+        <h2><i class="ti ti-world" style="color:var(--accent)"></i> Web Services — URL për QGIS &amp; ArcGIS</h2>
+        <button class="modal-close" onclick="closeModal('wms-modal')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="wms-modal-body">
+
+        <!-- Tabs -->
+        <div class="wms-tabs">
+          <button class="wms-tab active" id="wtab-btn-wfs" onclick="switchWMSTab('wfs')">
+            <i class="ti ti-database-export"></i> WFS / GeoJSON
+          </button>
+          <button class="wms-tab" id="wtab-btn-wms" onclick="switchWMSTab('wms')">
+            <i class="ti ti-map-2"></i> WMS
+          </button>
+          <button class="wms-tab" id="wtab-btn-qgis" onclick="switchWMSTab('qgis')">
+            <i class="ti ti-help-circle"></i> Si të hapësh
+          </button>
+        </div>
+
+        <!-- TAB: WFS / GeoJSON -->
+        <div class="wms-tab-content" id="wtab-wfs">
+          <div class="wms-base-url-box" id="wms-base-url-box">
+            <span class="wms-base-label"><i class="ti ti-server"></i> URL bazë e serverit:</span>
+            <code class="wms-base-code" id="wms-base-url-text">http://localhost:8080</code>
+            <button class="wms-copy-small" onclick="copyText(document.getElementById('wms-base-url-text').textContent, 'URL bazë u kopjua')">
+              <i class="ti ti-copy"></i>
+            </button>
+          </div>
+
+          <div class="wms-section-label" style="margin-top:4px"><i class="ti ti-layers"></i> Shtresat — klikoni butonin për të kopjuar URL-n</div>
+
+          <div class="wms-layers-grid" id="wfs-layers-grid">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="wms-info-box" style="margin-top:8px">
+            <i class="ti ti-info-circle"></i>
+            <span>Kopjo URL-në dhe shto si <strong>Shtresë Vektori (HTTP)</strong> në QGIS. Serveri duhet të jetë aktiv (<code>python -m http.server 8080</code>).</span>
+          </div>
+        </div>
+
+        <!-- TAB: WMS -->
+        <div class="wms-tab-content" id="wtab-wms" style="display:none">
+          <div class="wms-info-box" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:var(--text2)">
+            <i class="ti ti-alert-triangle" style="color:var(--warn)"></i>
+            <span>Shërbimi WMS kërkon server të dedikuar si <strong>GeoServer</strong> ose <strong>QGIS Server</strong>. Projekti aktual nuk ka WMS server — përdorni WFS/GeoJSON si alternativë.</span>
+          </div>
+
+          <div class="wms-section-label" style="margin-top:8px"><i class="ti ti-settings"></i> Parametrat WMS (kur të konfiguroni GeoServer)</div>
+
+          <div class="wms-params-table">
+            <div class="wms-param-row">
+              <span class="wms-param-key">Service URL</span>
+              <code class="wms-param-val">http://localhost:8080/geoserver/wms</code>
+              <button class="wms-copy-small" onclick="copyText('http://localhost:8080/geoserver/wms','WMS URL u kopjua')"><i class="ti ti-copy"></i></button>
+            </div>
+            <div class="wms-param-row">
+              <span class="wms-param-key">Version</span>
+              <code class="wms-param-val">1.1.1</code>
+            </div>
+            <div class="wms-param-row">
+              <span class="wms-param-key">Layers</span>
+              <code class="wms-param-val">emergjente:stacionet_policore, emergjente:spitalet</code>
+            </div>
+            <div class="wms-param-row">
+              <span class="wms-param-key">Format</span>
+              <code class="wms-param-val">image/png</code>
+            </div>
+            <div class="wms-param-row">
+              <span class="wms-param-key">CRS</span>
+              <code class="wms-param-val">EPSG:4326</code>
+            </div>
+          </div>
+
+          <div class="wms-section-label" style="margin-top:12px"><i class="ti ti-file-description"></i> GetCapabilities URL (WMS)</div>
+          <div class="wms-url-row">
+            <code class="wms-url-code" id="wms-cap-url">http://localhost:8080/geoserver/wms?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetCapabilities</code>
+            <button class="wms-copy-small" onclick="copyText('http://localhost:8080/geoserver/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities','WMS GetCapabilities URL u kopjua')"><i class="ti ti-copy"></i></button>
+          </div>
+        </div>
+
+        <!-- TAB: Si të hapësh -->
+        <div class="wms-tab-content" id="wtab-qgis" style="display:none">
+          <div class="wms-howto">
+            <div class="wms-howto-step">
+              <div class="wms-step-num">1</div>
+              <div class="wms-step-body">
+                <div class="wms-step-title">Hap QGIS dhe shto shtresë vektori</div>
+                <div class="wms-step-desc">Shko te <strong>Layer → Add Layer → Add Vector Layer</strong> (ose Ctrl+Shift+V)</div>
+              </div>
+            </div>
+            <div class="wms-howto-step">
+              <div class="wms-step-num">2</div>
+              <div class="wms-step-body">
+                <div class="wms-step-title">Zgjidh burimin "Protocol: HTTP/HTTPS/cloud"</div>
+                <div class="wms-step-desc">Në fushën <strong>Source Type</strong> zgjidh <strong>Protocol: HTTP/HTTPS/cloud</strong></div>
+              </div>
+            </div>
+            <div class="wms-howto-step">
+              <div class="wms-step-num">3</div>
+              <div class="wms-step-body">
+                <div class="wms-step-title">Fut URL-n dhe kliko "Add"</div>
+                <div class="wms-step-desc">Kopjo URL-n nga tab-i <strong>WFS/GeoJSON</strong>, ngjite në fushën URL, kliko <strong>Add</strong></div>
+              </div>
+            </div>
+            <div class="wms-howto-step">
+              <div class="wms-step-num">4</div>
+              <div class="wms-step-body">
+                <div class="wms-step-title">Sigurohu që serveri është aktiv</div>
+                <div class="wms-step-desc">Hap terminal dhe ekzekuto <code>python -m http.server 8080</code> në folderin e projektit</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wms-info-box" style="margin-top:8px">
+            <i class="ti ti-sparkles"></i>
+            <span>Alternativë e shpejtë: Shkarko skedarin GeoJSON nga WebGIS (butoni <strong>Shkarko</strong> në topbar) dhe tërhiqe direkt në QGIS.</span>
+          </div>
+        </div>
+
+      </div><!-- /wms-modal-body -->
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
+  <script src="js/geo_border.js"></script>
+  <script src="js/geo_regions.js"></script>
+  <script src="js/geo_municipalities.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
