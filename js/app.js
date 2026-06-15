@@ -2798,12 +2798,20 @@ function makeUnitCheckboxes(id, lat, lng) {
 
 function confirmVGI(id) {
   const r = VGI_REPORTS.find(r => r.id === id);
-  if (r) { r.statusi = 'konfirmuar'; }
+  if (r) r.statusi = 'konfirmuar';
   fbUpdateVGI(id, { statusi: 'konfirmuar' });
+  // Ndrysho ikonën direkt pa rebuild të plotë
+  const mk = vgiMarkers.find(m => m.options.vgiId === id);
+  if (mk) {
+    mk.setIcon(L.divIcon({
+      className: '',
+      html: `<div class="marker-icon" style="background:#059669"><i class="ti ti-user-pin"></i></div>`,
+      iconSize: [32,32], iconAnchor: [16,16], popupAnchor: [0,-18],
+    }));
+    if (r) mk.setPopupContent(popupVGI(r));
+  }
   renderOperatorVGI();
-  updateVGIMarkers();
-  const pend = VGI_REPORTS.filter(r => r.statusi === 'pa_verifikuar').length;
-  document.getElementById('vgi-pending').textContent = `${pend} raporte në pritje`;
+  updateStats();
   setStatus(`VGI ${id} u konfirmua`);
 }
 
@@ -2811,10 +2819,15 @@ function rejectVGI(id) {
   const r = VGI_REPORTS.find(r => r.id === id);
   if (r) r.statusi = 'refuzuar';
   fbUpdateVGI(id, { statusi: 'refuzuar' });
-  updateVGIMarkers();
+  // Hiq markerin direkt
+  const idx = vgiMarkers.findIndex(m => m.options.vgiId === id);
+  if (idx !== -1) {
+    layerGroups.vgi.removeLayer(vgiMarkers[idx]);
+    vgiMarkers.splice(idx, 1);
+  }
+  map.closePopup();
   renderOperatorVGI();
   updateStats();
-  map.closePopup();
   setStatus(`VGI ${id} u refuzua`);
 }
 
@@ -2839,6 +2852,14 @@ function doAssign(id) {
   r.statusi = 'caktuar';
   fbUpdateVGI(id, { statusi: 'caktuar', njesia_caktuar: r.njesia_caktuar });
 
+  // Hiq markerin VGI direkt
+  const vgiIdx = vgiMarkers.findIndex(mk => mk.options.vgiId === id);
+  if (vgiIdx !== -1) {
+    layerGroups.vgi.removeLayer(vgiMarkers[vgiIdx]);
+    vgiMarkers.splice(vgiIdx, 1);
+  }
+  map.closePopup();
+
   const koha = new Date().toLocaleTimeString('sq', { hour:'2-digit', minute:'2-digit' });
   const newFeature = {
     type: 'Feature',
@@ -2858,6 +2879,7 @@ function doAssign(id) {
   };
 
   INCIDENTS.features.push(newFeature);
+  fbSaveIncident(newFeature);
 
   const m = L.marker([r.lat, r.lng], { icon: createIncidentIcon(ashpersia) })
     .bindPopup(popupIncident(newFeature.properties, r.lat, r.lng), { maxWidth: 280 });
@@ -2868,7 +2890,6 @@ function doAssign(id) {
   renderIncidentList();
   updateStats();
   renderOperatorVGI();
-  updateVGIMarkers();
   map.flyTo([r.lat, r.lng], 15, { duration: 1.2 });
   setStatus(`${r.lloji} — ${names.length} njësi caktua, shënuar si incident aktiv`);
 }

@@ -186,34 +186,76 @@ function fbListenLiveDB() {
   });
 }
 
-// ---- Incidents: shëno si të zgjidhur ----
-async function fbResolveIncident(id) {
+// ---- Incidents: ruaj incident aktiv nga VGI ----
+async function fbSaveIncident(feature) {
   if (!_fbReady) return;
   try {
-    await _db.collection('incidents').doc(id).set({ statusi: 'zgjidhur', koha_unix: Date.now() });
+    const p = feature.properties;
+    await _db.collection('incidents_active').doc(p.id).set({
+      ...p,
+      lat: feature.geometry.coordinates[1],
+      lng: feature.geometry.coordinates[0],
+      koha_unix: Date.now(),
+    });
   } catch (e) {
     console.warn('[Firebase] incidenti ruajtja dështoi:', e.message);
   }
 }
 
-// ---- Incidents: dëgjo zgjidhjet në real-time ----
+// ---- Incidents: shëno si të zgjidhur (fshi nga aktive) ----
+async function fbResolveIncident(id) {
+  if (!_fbReady) return;
+  try {
+    await _db.collection('incidents_active').doc(id).delete();
+  } catch (e) {
+    console.warn('[Firebase] fshirja e incidentit dështoi:', e.message);
+  }
+}
+
+// ---- Incidents: dëgjo incidentet aktive (shtim + heqje) ----
 function fbListenIncidents() {
   if (!_fbReady) return;
   let _init = false;
-  _db.collection('incidents').onSnapshot(snap => {
-    let changed = false;
+  _db.collection('incidents_active').onSnapshot(snap => {
     snap.docChanges().forEach(ch => {
-      if (ch.type === 'removed') return;
-      const data = ch.doc.data();
-      if (data.statusi !== 'zgjidhur') return;
-      if (typeof removeIncidentById === 'function') removeIncidentById(ch.doc.id);
-      changed = true;
-      if (_init) _fbToast('✅ Incidenti u zgjidh: ' + ch.doc.id);
+      const id = ch.doc.id;
+
+      if (ch.type === 'added') {
+        const d = ch.doc.data();
+        // Mos shto nëse ekziston tashmë lokalisht
+        if (typeof INCIDENTS !== 'undefined' &&
+            INCIDENTS.features.find(f => f.properties.id === id)) return;
+
+        const feature = {
+          type: 'Feature',
+          properties: {
+            id, lloji: d.lloji, ashpersia: d.ashpersia, statusi: d.statusi,
+            sherbimi: d.sherbimi, sherbime: d.sherbime,
+            koha: d.koha, adresa: d.adresa, pershkrimi: d.pershkrimi, njesia: d.njesia,
+          },
+          geometry: { type: 'Point', coordinates: [d.lng, d.lat] },
+        };
+        if (typeof INCIDENTS !== 'undefined') INCIDENTS.features.push(feature);
+
+        if (typeof layerGroups !== 'undefined' && layerGroups.incidents &&
+            typeof createIncidentIcon !== 'undefined') {
+          const m = L.marker([d.lat, d.lng], { icon: createIncidentIcon(d.ashpersia) })
+            .bindPopup(popupIncident(feature.properties, d.lat, d.lng), { maxWidth: 280 });
+          m.incidentData = feature.properties;
+          layerGroups.incidents.addLayer(m);
+          allIncidentMarkers.push(m);
+        }
+        if (typeof renderIncidentList === 'function') renderIncidentList();
+        if (typeof updateStats === 'function') updateStats();
+        if (_init) _fbToast('🚨 Incident i ri: ' + d.lloji + ' — ' + d.adresa);
+
+      } else if (ch.type === 'removed') {
+        if (typeof removeIncidentById === 'function') removeIncidentById(id);
+        if (typeof renderIncidentList === 'function') renderIncidentList();
+        if (typeof updateStats === 'function') updateStats();
+        if (_init) _fbToast('✅ Incidenti u zgjidh: ' + id);
+      }
     });
-    if (changed) {
-      if (typeof renderIncidentList === 'function') renderIncidentList();
-      if (typeof updateStats === 'function') updateStats();
-    }
     _init = true;
   });
 }
