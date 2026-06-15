@@ -82,6 +82,7 @@ function fbListenVGI() {
           }
 
           if (typeof updateStats === 'function') updateStats();
+          if (typeof renderOperatorVGI === 'function') renderOperatorVGI();
           _fbToast('📍 Raport i ri VGI: ' + r.lloji + ' — ' + r.emri);
 
         } else if (ch.type === 'modified') {
@@ -89,8 +90,8 @@ function fbListenVGI() {
           const idx = VGI_REPORTS.findIndex(x => x.id === r.id);
           if (idx !== -1) Object.assign(VGI_REPORTS[idx], r);
 
-          if (r.statusi === 'refuzuar') {
-            // Largo nga harta dhe lista
+          if (r.statusi === 'refuzuar' || r.statusi === 'caktuar') {
+            // Largo nga harta VGI dhe lista
             if (typeof updateVGIMarkers === 'function') updateVGIMarkers();
             if (typeof renderOperatorVGI === 'function') renderOperatorVGI();
           } else {

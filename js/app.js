@@ -732,6 +732,7 @@ function submitVGI() {
     .bindPopup(popupVGI(newReport), { maxWidth: 280 })
     .addTo(layerGroups.vgi).openPopup();
 
+  renderOperatorVGI();
   const pending = VGI_REPORTS.filter(r => r.statusi === 'pa_verifikuar').length;
   document.getElementById('vgi-pending').textContent = `${pending} raporte në pritje`;
 
@@ -2731,7 +2732,7 @@ function switchTab(tab) {
 function renderOperatorVGI() {
   const list = document.getElementById('op-vgi-list');
   if (!list) return;
-  list.innerHTML = VGI_REPORTS.filter(r => r.statusi !== 'refuzuar').map(r => {
+  list.innerHTML = VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar').map(r => {
     const sc = r.statusi === 'konfirmuar' ? 'low' : r.statusi === 'refuzuar' ? 'high' : 'med';
     const st = r.statusi === 'konfirmuar' ? 'Konfirmuar' : r.statusi === 'refuzuar' ? 'Refuzuar' : 'Pa verifikuar';
     const assignedHtml = r.njesia_caktuar
@@ -2839,8 +2840,8 @@ function doAssign(id) {
   const ashpersia = ashSel ? ashSel.value : 'med';
 
   r.njesia_caktuar = names.join(' + ');
-  r.statusi = 'konfirmuar';
-  fbUpdateVGI(id, { statusi: 'konfirmuar', njesia_caktuar: r.njesia_caktuar });
+  r.statusi = 'caktuar';
+  fbUpdateVGI(id, { statusi: 'caktuar', njesia_caktuar: r.njesia_caktuar });
 
   const koha = new Date().toLocaleTimeString('sq', { hour:'2-digit', minute:'2-digit' });
   const newFeature = {
@@ -2879,7 +2880,7 @@ function doAssign(id) {
 function updateVGIMarkers() {
   layerGroups.vgi.clearLayers();
   vgiMarkers = [];
-  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar').forEach(r => {
+  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar').forEach(r => {
     const color = r.statusi === 'konfirmuar' ? '#059669' : '#db2777';
     const icon = L.divIcon({
       className: '',
