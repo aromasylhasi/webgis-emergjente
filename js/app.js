@@ -357,10 +357,10 @@ function loadLayers() {
     allIncidentMarkers.push(m);
   });
 
-  // VGI — ngarko të dhënat statike
+  // VGI — ngarko të dhënat statike (filtro të refuzuarat/caktuarat)
   vgiMarkers = [];
   layerGroups.vgi = L.layerGroup();
-  VGI_REPORTS.forEach(r => {
+  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar').forEach(r => {
     const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
       .bindPopup(popupVGI(r), { maxWidth: 280 });
     layerGroups.vgi.addLayer(m);
@@ -369,8 +369,9 @@ function loadLayers() {
 
   // Firebase: ngarko raportet e ruajtura dhe aktivizo real-time
   fbLoadVGI(function() {
-    // Shto markerat e rinj nga Firebase (që nuk ishin në të dhënat statike)
+    // Shto markerat e rinj nga Firebase (filtro të refuzuarat/caktuarat)
     VGI_REPORTS.forEach(r => {
+      if (r.statusi === 'refuzuar' || r.statusi === 'caktuar') return;
       if (!vgiMarkers.find(m => m.options.vgiId === r.id)) {
         const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
           .bindPopup(popupVGI(r), { maxWidth: 280 });
@@ -379,6 +380,7 @@ function loadLayers() {
       }
     });
     updateStats();
+    renderOperatorVGI();
   });
   fbListenVGI();
 
@@ -728,9 +730,11 @@ function submitVGI() {
   VGI_REPORTS.push(newReport);
   fbSaveVGI(newReport);
 
-  L.marker([lat, lng], { icon: icons.vgi })
-    .bindPopup(popupVGI(newReport), { maxWidth: 280 })
-    .addTo(layerGroups.vgi).openPopup();
+  const vgiM = L.marker([lat, lng], { icon: icons.vgi, vgiId: newReport.id })
+    .bindPopup(popupVGI(newReport), { maxWidth: 280 });
+  vgiM.addTo(layerGroups.vgi);
+  vgiM.openPopup();
+  vgiMarkers.push(vgiM);
 
   renderOperatorVGI();
   const pending = VGI_REPORTS.filter(r => r.statusi === 'pa_verifikuar').length;
