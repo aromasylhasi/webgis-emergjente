@@ -1,5 +1,8 @@
 // ===== APP.JS — WebGIS Emergjente Kosovë =====
 
+// Firebase: inicializo sa herët — para çdo gjëje tjetër
+fbInit();
+
 // ----- MAP INIT -----
 const map = L.map('map', {
   center: [42.6629, 21.1655],
@@ -354,7 +357,7 @@ function loadLayers() {
     allIncidentMarkers.push(m);
   });
 
-  // VGI
+  // VGI — ngarko të dhënat statike
   vgiMarkers = [];
   layerGroups.vgi = L.layerGroup();
   VGI_REPORTS.forEach(r => {
@@ -363,6 +366,21 @@ function loadLayers() {
     layerGroups.vgi.addLayer(m);
     vgiMarkers.push(m);
   });
+
+  // Firebase: ngarko raportet e ruajtura dhe aktivizo real-time
+  fbLoadVGI(function() {
+    // Shto markerat e rinj nga Firebase (që nuk ishin në të dhënat statike)
+    VGI_REPORTS.forEach(r => {
+      if (!vgiMarkers.find(m => m.options.vgiId === r.id)) {
+        const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
+          .bindPopup(popupVGI(r), { maxWidth: 280 });
+        layerGroups.vgi.addLayer(m);
+        vgiMarkers.push(m);
+      }
+    });
+    updateStats();
+  });
+  fbListenVGI();
 
   // Shto sipas zoom dhe toggle
   updateLayerVisibility(map.getZoom());
@@ -706,8 +724,9 @@ function submitVGI() {
   const lat = pickedLatLng?.lat || 42.6629 + (Math.random() - 0.5) * 0.5;
   const lng = pickedLatLng?.lng || 21.1655 + (Math.random() - 0.5) * 0.5;
 
-  const newReport = { id: 'VGI' + Date.now(), lloji, adresa, lat, lng, pershkrimi, emri, koha: new Date().toLocaleTimeString('sq', {hour:'2-digit',minute:'2-digit'}), statusi:'pa_verifikuar' };
+  const newReport = { id: 'VGI' + Date.now(), lloji, adresa, lat, lng, pershkrimi, emri, koha: new Date().toLocaleTimeString('sq', {hour:'2-digit',minute:'2-digit'}), koha_unix: Date.now(), statusi:'pa_verifikuar' };
   VGI_REPORTS.push(newReport);
+  fbSaveVGI(newReport);
 
   L.marker([lat, lng], { icon: icons.vgi })
     .bindPopup(popupVGI(newReport), { maxWidth: 280 })
@@ -2783,6 +2802,7 @@ function makeUnitCheckboxes(id, lat, lng) {
 function confirmVGI(id) {
   const r = VGI_REPORTS.find(r => r.id === id);
   if (r) { r.statusi = 'konfirmuar'; }
+  fbUpdateVGI(id, { statusi: 'konfirmuar' });
   renderOperatorVGI();
   updateVGIMarkers();
   const pend = VGI_REPORTS.filter(r => r.statusi === 'pa_verifikuar').length;
@@ -2793,6 +2813,7 @@ function confirmVGI(id) {
 function rejectVGI(id) {
   const r = VGI_REPORTS.find(r => r.id === id);
   if (r) { r.statusi = 'refuzuar'; }
+  fbUpdateVGI(id, { statusi: 'refuzuar' });
   renderOperatorVGI();
   updateVGIMarkers();
   setStatus(`VGI ${id} u refuzua`);
@@ -2817,6 +2838,7 @@ function doAssign(id) {
 
   r.njesia_caktuar = names.join(' + ');
   r.statusi = 'konfirmuar';
+  fbUpdateVGI(id, { statusi: 'konfirmuar', njesia_caktuar: r.njesia_caktuar });
 
   const koha = new Date().toLocaleTimeString('sq', { hour:'2-digit', minute:'2-digit' });
   const newFeature = {
