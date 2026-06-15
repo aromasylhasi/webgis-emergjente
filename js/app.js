@@ -2972,22 +2972,6 @@ window.addEventListener('resize', function() {
   if (map) map.invalidateSize();
 });
 
-// Close mobile panels when tapping outside them (backdrop is pointer-events:none)
-document.addEventListener('click', function(e) {
-  var sb = document.getElementById('sidebar');
-  var rp = document.getElementById('right-panel');
-  var ts = document.getElementById('mob-tools-sheet');
-  var anyOpen = (sb && sb.classList.contains('mobile-open')) ||
-                (rp && rp.classList.contains('mobile-open')) ||
-                (ts && ts.classList.contains('open'));
-  if (!anyOpen) return;
-  if (e.target.closest('#sidebar') ||
-      e.target.closest('#right-panel') ||
-      e.target.closest('#mob-tools-sheet') ||
-      e.target.closest('.mob-bottom-nav') ||
-      e.target.closest('.topbar')) return;
-  closeMobileAll();
-});
 
 // ===== MOBILE NAV =====
 function toggleMobileSidebar() {

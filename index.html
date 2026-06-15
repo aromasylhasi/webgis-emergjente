@@ -158,8 +158,6 @@
     </div>
   </header>
   <div class="mob-title-strip">Menaxhimi i Shërbimeve Emergjente në Kosovë</div>
-  <div class="mobile-backdrop" id="mobile-backdrop"></div>
-
   <!-- MOBILE TOOLS BOTTOM SHEET -->
   <div class="mob-tools-sheet" id="mob-tools-sheet">
     <div class="mob-sheet-handle"></div>
@@ -197,6 +195,8 @@
 
   <!-- MAIN LAYOUT -->
   <div class="main-layout">
+    <!-- backdrop inside main-layout so it shares the same stacking context as sidebar/right-panel -->
+    <div class="mobile-backdrop" id="mobile-backdrop" onclick="closeMobileAll()"></div>
 
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar" id="sidebar">
