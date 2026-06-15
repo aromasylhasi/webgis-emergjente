@@ -2229,7 +2229,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
 .route-panel.minimized .rp-body,
 .measure-panel.minimized .mp-body,
 .buffer-panel.minimized .bp-body,
-.analysis-panel.minimized .ap-body,
+.analysis-panel.minimized .ap-content,
 .analysis-panel.minimized .ap-tabs { display: none !important; }
 
 .route-panel.minimized .panel-min-btn i,
