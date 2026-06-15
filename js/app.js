@@ -369,16 +369,8 @@ function loadLayers() {
 
   // Firebase: ngarko raportet e ruajtura dhe aktivizo real-time
   fbLoadVGI(function() {
-    // Shto markerat e rinj nga Firebase (filtro të refuzuarat/caktuarat)
-    VGI_REPORTS.forEach(r => {
-      if (r.statusi === 'refuzuar' || r.statusi === 'caktuar') return;
-      if (!vgiMarkers.find(m => m.options.vgiId === r.id)) {
-        const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
-          .bindPopup(popupVGI(r), { maxWidth: 280 });
-        layerGroups.vgi.addLayer(m);
-        vgiMarkers.push(m);
-      }
-    });
+    // Rindërtoj markerat tërësisht (me statuset e përditësuara nga Firestore)
+    updateVGIMarkers();
     updateStats();
     renderOperatorVGI();
   });
@@ -2882,6 +2874,7 @@ function doAssign(id) {
 }
 
 function updateVGIMarkers() {
+  if (map.hasLayer(layerGroups.vgi)) map.removeLayer(layerGroups.vgi);
   layerGroups.vgi.clearLayers();
   vgiMarkers = [];
   VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar').forEach(r => {
@@ -2893,9 +2886,10 @@ function updateVGIMarkers() {
     });
     const m = L.marker([r.lat, r.lng], { icon, vgiId: r.id })
       .bindPopup(popupVGI(r), { maxWidth: 280 });
-    m.addTo(layerGroups.vgi);
+    layerGroups.vgi.addLayer(m);
     vgiMarkers.push(m);
   });
+  updateLayerVisibility(map.getZoom());
 }
 
 // ===== DATABASE EDITOR =====

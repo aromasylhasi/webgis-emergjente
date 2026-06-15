@@ -49,7 +49,9 @@ async function fbLoadVGI(onDone) {
       .get();
     snap.forEach(doc => {
       const r = doc.data();
-      if (!VGI_REPORTS.find(x => x.id === r.id)) VGI_REPORTS.push(r);
+      const existing = VGI_REPORTS.find(x => x.id === r.id);
+      if (existing) Object.assign(existing, r); // përditëso statusin nga Firestore
+      else VGI_REPORTS.push(r);
     });
     if (onDone) onDone();
   } catch (e) {
