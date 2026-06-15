@@ -1,4 +1,4 @@
-const CACHE = 'emergjenca-v16';
+const CACHE = 'emergjenca-v17';
 const ASSETS = [
   './', './index.html', './css/style.css',
   './js/app.js', './js/data.js'

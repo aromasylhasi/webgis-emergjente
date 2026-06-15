@@ -58,31 +58,44 @@ async function fbLoadVGI(onDone) {
   }
 }
 
-// ---- VGI: dëgjo raportet e reja në real-time ----
+// ---- VGI: dëgjo raportet e reja dhe modifikimet në real-time ----
 function fbListenVGI() {
   if (!_fbReady) return;
   _fbCutoff = Date.now();
   _db.collection('vgi_reports')
-    .where('koha_unix', '>', _fbCutoff)
     .onSnapshot(snap => {
       snap.docChanges().forEach(ch => {
-        if (ch.type !== 'added') return;
         const r = ch.doc.data();
-        if (VGI_REPORTS.find(x => x.id === r.id)) return;
 
-        // Shto në array lokal
-        VGI_REPORTS.push(r);
+        if (ch.type === 'added') {
+          // Kap vetëm raportet e reja (pas ngarkimit fillestar)
+          if (r.koha_unix <= _fbCutoff) return;
+          if (VGI_REPORTS.find(x => x.id === r.id)) return;
 
-        // Shto marker në hartë
-        if (typeof layerGroups !== 'undefined' && layerGroups.vgi && typeof icons !== 'undefined') {
-          const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
-            .bindPopup(popupVGI(r), { maxWidth: 280 });
-          layerGroups.vgi.addLayer(m);
-          vgiMarkers.push(m);
+          VGI_REPORTS.push(r);
+
+          if (typeof layerGroups !== 'undefined' && layerGroups.vgi && typeof icons !== 'undefined') {
+            const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
+              .bindPopup(popupVGI(r), { maxWidth: 280 });
+            layerGroups.vgi.addLayer(m);
+            vgiMarkers.push(m);
+          }
+
+          if (typeof updateStats === 'function') updateStats();
+          _fbToast('📍 Raport i ri VGI: ' + r.lloji + ' — ' + r.emri);
+
+        } else if (ch.type === 'modified') {
+          // Sinkronizo ndryshimet (konfirmim, refuzim, caktim) mes përdoruesve
+          const idx = VGI_REPORTS.findIndex(x => x.id === r.id);
+          if (idx !== -1) Object.assign(VGI_REPORTS[idx], r);
+
+          // Përditëso popup-in e markerit nëse është i hapur
+          const marker = vgiMarkers.find(mk => mk.options.vgiId === r.id);
+          if (marker) marker.setPopupContent(popupVGI(r));
+
+          if (typeof updateStats === 'function') updateStats();
+          _fbToast('🔄 VGI përditësuar: ' + r.lloji + ' → ' + r.statusi);
         }
-
-        if (typeof updateStats === 'function') updateStats();
-        _fbToast('📍 Raport i ri VGI: ' + r.lloji + ' — ' + r.emri);
       });
     });
 }
@@ -91,7 +104,17 @@ function fbListenVGI() {
 async function fbUpdateVGI(id, fields) {
   if (!_fbReady) return;
   try {
-    await _db.collection('vgi_reports').doc(id).update(fields);
+    const ref = _db.collection('vgi_reports').doc(id);
+    const snap = await ref.get();
+    if (snap.exists) {
+      await ref.update(fields);
+    } else {
+      // Raport statik (nga data.js) — ruaj dokumentin e plotë + fushat e reja
+      const full = (typeof VGI_REPORTS !== 'undefined')
+        ? VGI_REPORTS.find(x => x.id === id)
+        : null;
+      await ref.set(full ? { ...full, ...fields } : { id, ...fields });
+    }
   } catch (e) {
     console.warn('[Firebase] përditësimi i VGI dështoi:', e.message);
   }
