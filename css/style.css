@@ -2001,6 +2001,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
   .topbar-tools  { display: none; }
   .coord-display { display: none; }
   .crs-btn       { display: none; }
+  .vgi-btn       { display: none; }
 
   /* --- Title strip below topbar --- */
   .mob-title-strip {
