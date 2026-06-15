@@ -1,15 +1,8 @@
-// =====================================================================
-//  FIREBASE CONFIGURATION
-//  Shko te: https://console.firebase.google.com
-//  1. Krijo projekt të ri  →  shto Web App  →  kopjo konfigurimim
-//  2. Krijo Firestore Database  →  Test mode  →  zgjidh rajon
-//  3. Ngjit vlerat këtu poshtë
-// =====================================================================
 const FIREBASE_CONFIG = {
-  apiKey:            "PASTE_YOUR_API_KEY",
-  authDomain:        "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "PASTE_YOUR_PROJECT_ID",
-  storageBucket:     "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId:             "PASTE_YOUR_APP_ID"
+  apiKey:            "AIzaSyAp4DJocCsADOHt9BNlF6eoKwD3WX6EBWA",
+  authDomain:        "webgis-emergjente-ks.firebaseapp.com",
+  projectId:         "webgis-emergjente-ks",
+  storageBucket:     "webgis-emergjente-ks.firebasestorage.app",
+  messagingSenderId: "316750380701",
+  appId:             "1:316750380701:web:c609044fbb146ff0d75e74"
 };
