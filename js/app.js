@@ -276,7 +276,7 @@ function popupIncident(p, lat, lng) {
   <div class="popup-row"><span class="popup-row-label">Ashpërsia</span><span class="sev-pill ${sevClass}">${sevText}</span></div>
   <div class="popup-row"><span class="popup-row-label">Koha</span><span class="popup-row-val">${p.koha}</span></div>
   <div class="popup-row"><span class="popup-row-label">Njësia</span><span class="popup-row-val">${p.njesia}</span></div>
-  <div class="popup-row"><span class="popup-row-label">Pershkrimi</span><span class="popup-row-val" style="font-size:10px;max-width:140px;text-align:right">${p.pershkrimi}</span></div>${nfPart}`;
+  <div class="popup-row"><span class="popup-row-label">Pershkrimi</span><span class="popup-row-val" style="font-size:10px;max-width:140px;text-align:right">${p.pershkrimi}</span></div>${nfPart}${p.id ? `<div class="popup-nf-wrap"><button class="popup-nf-btn" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#10b981" onclick="resolveIncident('${p.id}')"><i class="ti ti-circle-check"></i> Shëno si të zgjidhur</button></div>` : ''}`;
 }
 
 function popupVGI(r) {
@@ -2731,7 +2731,7 @@ function switchTab(tab) {
 function renderOperatorVGI() {
   const list = document.getElementById('op-vgi-list');
   if (!list) return;
-  list.innerHTML = VGI_REPORTS.map(r => {
+  list.innerHTML = VGI_REPORTS.filter(r => r.statusi !== 'refuzuar').map(r => {
     const sc = r.statusi === 'konfirmuar' ? 'low' : r.statusi === 'refuzuar' ? 'high' : 'med';
     const st = r.statusi === 'konfirmuar' ? 'Konfirmuar' : r.statusi === 'refuzuar' ? 'Refuzuar' : 'Pa verifikuar';
     const assignedHtml = r.njesia_caktuar
@@ -2812,10 +2812,12 @@ function confirmVGI(id) {
 
 function rejectVGI(id) {
   const r = VGI_REPORTS.find(r => r.id === id);
-  if (r) { r.statusi = 'refuzuar'; }
+  if (r) r.statusi = 'refuzuar';
   fbUpdateVGI(id, { statusi: 'refuzuar' });
-  renderOperatorVGI();
   updateVGIMarkers();
+  renderOperatorVGI();
+  updateStats();
+  map.closePopup();
   setStatus(`VGI ${id} u refuzua`);
 }
 
@@ -2876,16 +2878,18 @@ function doAssign(id) {
 
 function updateVGIMarkers() {
   layerGroups.vgi.clearLayers();
-  VGI_REPORTS.forEach(r => {
-    const color = r.statusi === 'konfirmuar' ? '#059669' : r.statusi === 'refuzuar' ? '#6b7280' : '#db2777';
+  vgiMarkers = [];
+  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar').forEach(r => {
+    const color = r.statusi === 'konfirmuar' ? '#059669' : '#db2777';
     const icon = L.divIcon({
       className: '',
       html: `<div class="marker-icon" style="background:${color}"><i class="ti ti-user-pin"></i></div>`,
       iconSize: [32,32], iconAnchor: [16,16], popupAnchor: [0,-18],
     });
-    L.marker([r.lat, r.lng], { icon })
-      .bindPopup(popupVGI(r), { maxWidth: 280 })
-      .addTo(layerGroups.vgi);
+    const m = L.marker([r.lat, r.lng], { icon, vgiId: r.id })
+      .bindPopup(popupVGI(r), { maxWidth: 280 });
+    m.addTo(layerGroups.vgi);
+    vgiMarkers.push(m);
   });
 }
 
@@ -2969,9 +2973,28 @@ function saveDB(type, id, fieldKey, value) {
   const item = liveDB[type].find(s => s.id === id);
   if (item) {
     item[fieldKey] = parseInt(value) || 0;
+    fbSaveLiveDB(type, id, fieldKey, item[fieldKey]);
     updateStats();
     setStatus(`U ruajt: ${id} → ${fieldKey} = ${value}`);
   }
+}
+
+function removeIncidentById(id) {
+  INCIDENTS.features = INCIDENTS.features.filter(f => f.properties.id !== id);
+  const marker = allIncidentMarkers.find(m => m.incidentData && m.incidentData.id === id);
+  if (marker) {
+    layerGroups.incidents.removeLayer(marker);
+    allIncidentMarkers = allIncidentMarkers.filter(m => !(m.incidentData && m.incidentData.id === id));
+  }
+}
+
+function resolveIncident(id) {
+  removeIncidentById(id);
+  map.closePopup();
+  fbResolveIncident(id);
+  renderIncidentList();
+  updateStats();
+  setStatus('Incidenti u shënua si i zgjidhur');
 }
 
 // ----- INIT -----
@@ -2980,6 +3003,10 @@ loadBoundaryLayers();
 renderLegend('severity');
 applyZoomClass(map.getZoom());
 setStatus('WebGIS Emergjente Kosovë — i ngarkuar me sukses');
+
+// Firebase real-time sync
+fbListenLiveDB();
+fbListenIncidents();
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});

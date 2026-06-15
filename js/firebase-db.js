@@ -89,9 +89,14 @@ function fbListenVGI() {
           const idx = VGI_REPORTS.findIndex(x => x.id === r.id);
           if (idx !== -1) Object.assign(VGI_REPORTS[idx], r);
 
-          // Përditëso popup-in e markerit nëse është i hapur
-          const marker = vgiMarkers.find(mk => mk.options.vgiId === r.id);
-          if (marker) marker.setPopupContent(popupVGI(r));
+          if (r.statusi === 'refuzuar') {
+            // Largo nga harta dhe lista
+            if (typeof updateVGIMarkers === 'function') updateVGIMarkers();
+            if (typeof renderOperatorVGI === 'function') renderOperatorVGI();
+          } else {
+            const marker = vgiMarkers.find(mk => mk.options.vgiId === r.id);
+            if (marker) marker.setPopupContent(popupVGI(r));
+          }
 
           if (typeof updateStats === 'function') updateStats();
           _fbToast('🔄 VGI përditësuar: ' + r.lloji + ' → ' + r.statusi);
@@ -143,6 +148,71 @@ function _fbToast(msg) {
   t.style.opacity = '1';
   clearTimeout(t._tmr);
   t._tmr = setTimeout(() => { t.style.opacity = '0'; }, 4500);
+}
+
+// ---- liveDB: ruaj ndryshim të një fushe ----
+async function fbSaveLiveDB(type, id, fieldKey, value) {
+  if (!_fbReady) return;
+  try {
+    await _db.collection('livedb').doc(type + '|' + id).set({ [fieldKey]: value }, { merge: true });
+  } catch (e) {
+    console.warn('[Firebase] liveDB ruajtja dështoi:', e.message);
+  }
+}
+
+// ---- liveDB: dëgjo ndryshimet (ngarkon edhe gjendjen fillestare) ----
+function fbListenLiveDB() {
+  if (!_fbReady) return;
+  let _init = false;
+  _db.collection('livedb').onSnapshot(snap => {
+    snap.docChanges().forEach(ch => {
+      if (ch.type === 'removed') return;
+      const data = ch.doc.data();
+      const parts = ch.doc.id.split('|');
+      const type = parts[0], id = parts[1];
+      if (typeof liveDB !== 'undefined' && liveDB[type]) {
+        const item = liveDB[type].find(s => s.id === id);
+        if (item) Object.assign(item, data);
+      }
+    });
+    if (_init) {
+      if (typeof renderDBEditor === 'function') renderDBEditor();
+    }
+    if (typeof updateStats === 'function') updateStats();
+    _init = true;
+  });
+}
+
+// ---- Incidents: shëno si të zgjidhur ----
+async function fbResolveIncident(id) {
+  if (!_fbReady) return;
+  try {
+    await _db.collection('incidents').doc(id).set({ statusi: 'zgjidhur', koha_unix: Date.now() });
+  } catch (e) {
+    console.warn('[Firebase] incidenti ruajtja dështoi:', e.message);
+  }
+}
+
+// ---- Incidents: dëgjo zgjidhjet në real-time ----
+function fbListenIncidents() {
+  if (!_fbReady) return;
+  let _init = false;
+  _db.collection('incidents').onSnapshot(snap => {
+    let changed = false;
+    snap.docChanges().forEach(ch => {
+      if (ch.type === 'removed') return;
+      const data = ch.doc.data();
+      if (data.statusi !== 'zgjidhur') return;
+      if (typeof removeIncidentById === 'function') removeIncidentById(ch.doc.id);
+      changed = true;
+      if (_init) _fbToast('✅ Incidenti u zgjidh: ' + ch.doc.id);
+    });
+    if (changed) {
+      if (typeof renderIncidentList === 'function') renderIncidentList();
+      if (typeof updateStats === 'function') updateStats();
+    }
+    _init = true;
+  });
 }
 
 // ---- ekspozim publik ----
