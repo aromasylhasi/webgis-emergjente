@@ -1075,27 +1075,41 @@ const WFS_PRESETS = {
   },
 };
 
+const GS_WORKSPACE = 'webgis_emergjente_Kosovë';
+const GS_LAYERS = [
+  { name:'stacionet_policore',   title:'Stacionet Policore',    color:'#2563eb', icon:'ti-shield' },
+  { name:'stacionet_zjarrfikes', title:'Stacionet Zjarrfikëse', color:'#dc2626', icon:'ti-flame' },
+  { name:'ambulancat_qkmf',      title:'Ambulancat / QKMF',     color:'#059669', icon:'ti-ambulance' },
+  { name:'spitalet',             title:'Spitalet',              color:'#7c3aed', icon:'ti-building-hospital' },
+  { name:'incidentet',           title:'Incidentet Aktive',     color:'#d97706', icon:'ti-alert-triangle' },
+];
+
 function showWMSPanel() {
   document.getElementById('wms-modal').style.display = 'flex';
-  switchWMSTab(_activeWMSTab);
-  buildWFSLayerGrid();
+  switchWMSTab('wms');
+  buildGeoServerURLs();
 }
 
 function switchWMSTab(tab) {
   _activeWMSTab = tab;
-  ['wfs', 'wms', 'qgis'].forEach(t => {
+  ['wms', 'wfs'].forEach(t => {
     document.getElementById('wtab-' + t).style.display = t === tab ? 'flex' : 'none';
     document.getElementById('wtab-btn-' + t).classList.toggle('active', t === tab);
   });
 }
 
-function buildWFSLayerGrid() {
-  const base = window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '') || '');
-  document.getElementById('wms-base-url-text').textContent = base;
+function buildGeoServerURLs() {
+  const base = (document.getElementById('gs-base-url')?.value || 'http://localhost:8080/geoserver').replace(/\/$/, '');
+  const ws = GS_WORKSPACE;
 
-  const grid = document.getElementById('wfs-layers-grid');
-  grid.innerHTML = WFS_LAYERS.map(lyr => {
-    const url = `${base}/data/${lyr.file}`;
+  const capWMS = `${base}/${ws}/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities`;
+  const capWFS = `${base}/${ws}/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities`;
+
+  const layerRowHTML = (lyr, type) => {
+    const url = type === 'wms'
+      ? `${base}/${ws}/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${ws}:${lyr.name}&BBOX=20.01,41.85,21.80,43.28&WIDTH=800&HEIGHT=600&SRS=EPSG:4326&FORMAT=image/png&TRANSPARENT=true`
+      : `${base}/${ws}/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=${ws}:${lyr.name}&OUTPUTFORMAT=application/json`;
+    const safeId = `gs-url-${type}-${lyr.name}`;
     return `
       <div class="wfs-layer-card">
         <div class="wfs-card-icon" style="background:${lyr.color}20;color:${lyr.color}">
@@ -1103,19 +1117,39 @@ function buildWFSLayerGrid() {
         </div>
         <div class="wfs-card-info">
           <div class="wfs-card-title">${lyr.title}</div>
-          <div class="wfs-card-count">${lyr.count} objekte · GeoJSON</div>
-          <code class="wfs-card-url" id="url-${lyr.id}">${url}</code>
+          <div class="wfs-card-count" style="font-size:10px;color:var(--text3)">${ws}:${lyr.name}</div>
+          <code class="wfs-card-url" id="${safeId}" style="font-size:9px">${url}</code>
         </div>
-        <button class="wfs-copy-btn" onclick="copyLayerURL('${lyr.id}','${lyr.title}')" title="Kopjo URL-n">
-          <i class="ti ti-copy"></i>
-          <span>Kopjo</span>
+        <button class="wfs-copy-btn" onclick="copyGSUrl('${safeId}','${lyr.title}')" title="Kopjo URL-n">
+          <i class="ti ti-copy"></i><span>Kopjo</span>
         </button>
       </div>`;
-  }).join('');
+  };
+
+  const capRow = (url, label) => `
+    <div class="wms-url-row" style="margin-bottom:8px">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:3px">${label}</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <code class="wfs-card-url" style="flex:1;font-size:9px">${url}</code>
+        <button class="wfs-copy-btn" style="flex-shrink:0" onclick="copyText('${url}','URL u kopjua!')">
+          <i class="ti ti-copy"></i><span>Kopjo</span>
+        </button>
+      </div>
+    </div>`;
+
+  document.getElementById('gs-wms-body').innerHTML =
+    capRow(capWMS, 'GetCapabilities — lista e të gjitha shtresave WMS') +
+    `<div class="wms-section-label" style="margin:10px 0 6px"><i class="ti ti-layers"></i> GetMap — URL për secilën shtresë</div>` +
+    GS_LAYERS.map(l => layerRowHTML(l, 'wms')).join('');
+
+  document.getElementById('gs-wfs-body').innerHTML =
+    capRow(capWFS, 'GetCapabilities — lista e të gjitha shtresave WFS') +
+    `<div class="wms-section-label" style="margin:10px 0 6px"><i class="ti ti-layers"></i> GetFeature — URL për secilën shtresë (GeoJSON)</div>` +
+    GS_LAYERS.map(l => layerRowHTML(l, 'wfs')).join('');
 }
 
-function copyLayerURL(layerId, title) {
-  const el = document.getElementById('url-' + layerId);
+function copyGSUrl(elId, title) {
+  const el = document.getElementById(elId);
   if (!el) return;
   copyText(el.textContent, `URL e "${title}" u kopjua!`);
   const btn = el.closest('.wfs-layer-card').querySelector('.wfs-copy-btn');
@@ -1125,9 +1159,7 @@ function copyLayerURL(layerId, title) {
   btn.style.color = 'var(--success)';
   setTimeout(() => {
     btn.innerHTML = '<i class="ti ti-copy"></i><span>Kopjo</span>';
-    btn.style.background = '';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    btn.style.background = btn.style.borderColor = btn.style.color = '';
   }, 2000);
 }
 

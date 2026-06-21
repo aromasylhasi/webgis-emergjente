@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="sq">
 <head>
   <meta charset="UTF-8">
@@ -844,123 +844,35 @@
   <div class="modal-overlay" id="wms-modal" style="display:none" onclick="if(event.target===this)closeModal('wms-modal')">
     <div class="modal modal-wms">
       <div class="modal-header">
-        <h2><i class="ti ti-world" style="color:var(--accent)"></i> Web Services — URL për QGIS &amp; ArcGIS</h2>
+        <h2><i class="ti ti-server-2" style="color:var(--accent)"></i> GeoServer — WMS &amp; WFS</h2>
         <button class="modal-close" onclick="closeModal('wms-modal')"><i class="ti ti-x"></i></button>
       </div>
       <div class="wms-modal-body">
 
-        <!-- Tabs -->
+        <div class="gs-url-config">
+          <span class="gs-url-label"><i class="ti ti-server"></i> GeoServer URL:</span>
+          <input class="gs-url-input" id="gs-base-url" value="http://localhost:8080/geoserver" oninput="buildGeoServerURLs()">
+        </div>
+        <div class="gs-workspace-row">
+          <span class="gs-ws-label">Workspace:</span>
+          <code class="gs-ws-code">webgis_emergjente_Koso&#235;</code>
+        </div>
+
         <div class="wms-tabs">
-          <button class="wms-tab active" id="wtab-btn-wfs" onclick="switchWMSTab('wfs')">
-            <i class="ti ti-database-export"></i> WFS / GeoJSON
-          </button>
-          <button class="wms-tab" id="wtab-btn-wms" onclick="switchWMSTab('wms')">
+          <button class="wms-tab active" id="wtab-btn-wms" onclick="switchWMSTab('wms')">
             <i class="ti ti-map-2"></i> WMS
           </button>
-          <button class="wms-tab" id="wtab-btn-qgis" onclick="switchWMSTab('qgis')">
-            <i class="ti ti-help-circle"></i> Si të hapësh
+          <button class="wms-tab" id="wtab-btn-wfs" onclick="switchWMSTab('wfs')">
+            <i class="ti ti-database-export"></i> WFS
           </button>
         </div>
 
-        <!-- TAB: WFS / GeoJSON -->
-        <div class="wms-tab-content" id="wtab-wfs">
-          <div class="wms-base-url-box" id="wms-base-url-box">
-            <span class="wms-base-label"><i class="ti ti-server"></i> URL bazë e serverit:</span>
-            <code class="wms-base-code" id="wms-base-url-text">http://localhost:8080</code>
-            <button class="wms-copy-small" onclick="copyText(document.getElementById('wms-base-url-text').textContent, 'URL bazë u kopjua')">
-              <i class="ti ti-copy"></i>
-            </button>
-          </div>
-
-          <div class="wms-section-label" style="margin-top:4px"><i class="ti ti-layers"></i> Shtresat — klikoni butonin për të kopjuar URL-n</div>
-
-          <div class="wms-layers-grid" id="wfs-layers-grid">
-            <!-- Populated by JS -->
-          </div>
-
-          <div class="wms-info-box" style="margin-top:8px">
-            <i class="ti ti-info-circle"></i>
-            <span>Kopjo URL-në dhe shto si <strong>Shtresë Vektori (HTTP)</strong> në QGIS. Serveri duhet të jetë aktiv (<code>python -m http.server 8080</code>).</span>
-          </div>
+        <div class="wms-tab-content" id="wtab-wms">
+          <div id="gs-wms-body"></div>
         </div>
 
-        <!-- TAB: WMS -->
-        <div class="wms-tab-content" id="wtab-wms" style="display:none">
-          <div class="wms-info-box" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:var(--text2)">
-            <i class="ti ti-alert-triangle" style="color:var(--warn)"></i>
-            <span>Shërbimi WMS kërkon server të dedikuar si <strong>GeoServer</strong> ose <strong>QGIS Server</strong>. Projekti aktual nuk ka WMS server — përdorni WFS/GeoJSON si alternativë.</span>
-          </div>
-
-          <div class="wms-section-label" style="margin-top:8px"><i class="ti ti-settings"></i> Parametrat WMS (kur të konfiguroni GeoServer)</div>
-
-          <div class="wms-params-table">
-            <div class="wms-param-row">
-              <span class="wms-param-key">Service URL</span>
-              <code class="wms-param-val">http://localhost:8080/geoserver/wms</code>
-              <button class="wms-copy-small" onclick="copyText('http://localhost:8080/geoserver/wms','WMS URL u kopjua')"><i class="ti ti-copy"></i></button>
-            </div>
-            <div class="wms-param-row">
-              <span class="wms-param-key">Version</span>
-              <code class="wms-param-val">1.1.1</code>
-            </div>
-            <div class="wms-param-row">
-              <span class="wms-param-key">Layers</span>
-              <code class="wms-param-val">emergjente:stacionet_policore, emergjente:spitalet</code>
-            </div>
-            <div class="wms-param-row">
-              <span class="wms-param-key">Format</span>
-              <code class="wms-param-val">image/png</code>
-            </div>
-            <div class="wms-param-row">
-              <span class="wms-param-key">CRS</span>
-              <code class="wms-param-val">EPSG:4326</code>
-            </div>
-          </div>
-
-          <div class="wms-section-label" style="margin-top:12px"><i class="ti ti-file-description"></i> GetCapabilities URL (WMS)</div>
-          <div class="wms-url-row">
-            <code class="wms-url-code" id="wms-cap-url">http://localhost:8080/geoserver/wms?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetCapabilities</code>
-            <button class="wms-copy-small" onclick="copyText('http://localhost:8080/geoserver/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities','WMS GetCapabilities URL u kopjua')"><i class="ti ti-copy"></i></button>
-          </div>
-        </div>
-
-        <!-- TAB: Si të hapësh -->
-        <div class="wms-tab-content" id="wtab-qgis" style="display:none">
-          <div class="wms-howto">
-            <div class="wms-howto-step">
-              <div class="wms-step-num">1</div>
-              <div class="wms-step-body">
-                <div class="wms-step-title">Hap QGIS dhe shto shtresë vektori</div>
-                <div class="wms-step-desc">Shko te <strong>Layer → Add Layer → Add Vector Layer</strong> (ose Ctrl+Shift+V)</div>
-              </div>
-            </div>
-            <div class="wms-howto-step">
-              <div class="wms-step-num">2</div>
-              <div class="wms-step-body">
-                <div class="wms-step-title">Zgjidh burimin "Protocol: HTTP/HTTPS/cloud"</div>
-                <div class="wms-step-desc">Në fushën <strong>Source Type</strong> zgjidh <strong>Protocol: HTTP/HTTPS/cloud</strong></div>
-              </div>
-            </div>
-            <div class="wms-howto-step">
-              <div class="wms-step-num">3</div>
-              <div class="wms-step-body">
-                <div class="wms-step-title">Fut URL-n dhe kliko "Add"</div>
-                <div class="wms-step-desc">Kopjo URL-n nga tab-i <strong>WFS/GeoJSON</strong>, ngjite në fushën URL, kliko <strong>Add</strong></div>
-              </div>
-            </div>
-            <div class="wms-howto-step">
-              <div class="wms-step-num">4</div>
-              <div class="wms-step-body">
-                <div class="wms-step-title">Sigurohu që serveri është aktiv</div>
-                <div class="wms-step-desc">Hap terminal dhe ekzekuto <code>python -m http.server 8080</code> në folderin e projektit</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="wms-info-box" style="margin-top:8px">
-            <i class="ti ti-sparkles"></i>
-            <span>Alternativë e shpejtë: Shkarko skedarin GeoJSON nga WebGIS (butoni <strong>Shkarko</strong> në topbar) dhe tërhiqe direkt në QGIS.</span>
-          </div>
+        <div class="wms-tab-content" id="wtab-wfs" style="display:none">
+          <div id="gs-wfs-body"></div>
         </div>
 
       </div><!-- /wms-modal-body -->

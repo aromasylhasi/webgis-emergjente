@@ -1816,6 +1816,27 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
 .ba-inst-addr { font-size: 10px; color: var(--text3); margin-top: 1px; }
 
 /* ===== WMS / WFS MODAL ===== */
+.gs-url-config {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: var(--bg3); border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.gs-url-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.gs-url-input {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 4px 8px; color: var(--text1);
+  font-size: 11px; font-family: var(--mono);
+}
+.gs-url-input:focus { outline: none; border-color: var(--accent); }
+.gs-workspace-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px; font-size: 11px;
+}
+.gs-ws-label { color: var(--text3); }
+.gs-ws-code {
+  background: rgba(99,102,241,.12); color: #818cf8;
+  padding: 2px 8px; border-radius: 4px; font-size: 11px;
+}
 .modal-wms {
   width: 540px; max-width: 96vw;
   max-height: 88vh; display: flex; flex-direction: column;
