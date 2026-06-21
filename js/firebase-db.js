@@ -94,8 +94,15 @@ function fbListenVGI() {
           if (idx !== -1) Object.assign(VGI_REPORTS[idx], r);
 
           if (r.statusi === 'refuzuar' || r.statusi === 'caktuar') {
-            // Largo nga harta VGI dhe lista
-            if (typeof updateVGIMarkers === 'function') updateVGIMarkers();
+            // Largo markerin specifik direkt — funksionon edhe në kohë reale mes pajisjeve
+            if (typeof vgiMarkers !== 'undefined' && typeof layerGroups !== 'undefined' && layerGroups.vgi) {
+              const mIdx = vgiMarkers.findIndex(mk => mk.options.vgiId === r.id);
+              if (mIdx !== -1) {
+                layerGroups.vgi.removeLayer(vgiMarkers[mIdx]);
+                vgiMarkers.splice(mIdx, 1);
+              }
+            }
+            if (typeof map !== 'undefined') map.closePopup();
             if (typeof renderOperatorVGI === 'function') renderOperatorVGI();
           } else {
             const marker = vgiMarkers.find(mk => mk.options.vgiId === r.id);
