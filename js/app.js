@@ -1176,14 +1176,12 @@ function showVGIReports() {
 }
 
 function updateVGIFilterCounts() {
-  const total = VGI_REPORTS.length;
-  const pv    = VGI_REPORTS.filter(r => r.statusi === 'pa_verifikuar').length;
-  const ko    = VGI_REPORTS.filter(r => r.statusi === 'konfirmuar').length;
-  const re    = VGI_REPORTS.filter(r => r.statusi === 'refuzuar').length;
-  document.getElementById('vgi-f-all').textContent = total;
+  const visible = VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar');
+  const pv = visible.filter(r => r.statusi === 'pa_verifikuar').length;
+  const ko = visible.filter(r => r.statusi === 'konfirmuar').length;
+  document.getElementById('vgi-f-all').textContent = visible.length;
   document.getElementById('vgi-f-pv').textContent  = pv;
   document.getElementById('vgi-f-ko').textContent  = ko;
-  document.getElementById('vgi-f-re').textContent  = re;
 }
 
 function filterVGIList(filter, btn) {
@@ -1194,9 +1192,10 @@ function filterVGIList(filter, btn) {
 
 function renderVGIListModal(filter) {
   const body = document.getElementById('vgi-list-body');
+  const visible = VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar');
   const list = filter === 'all'
-    ? VGI_REPORTS
-    : VGI_REPORTS.filter(r => r.statusi === filter);
+    ? visible
+    : visible.filter(r => r.statusi === filter);
 
   if (!list.length) {
     body.innerHTML = `
