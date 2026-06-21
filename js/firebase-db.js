@@ -248,7 +248,7 @@ function fbListenIncidents() {
         if (typeof layerGroups !== 'undefined' && layerGroups.incidents &&
             typeof createIncidentIcon !== 'undefined') {
           const m = L.marker([d.lat, d.lng], { icon: createIncidentIcon(d.ashpersia) })
-            .bindPopup(popupIncident(feature.properties, d.lat, d.lng), { maxWidth: 280 });
+            .bindPopup(() => popupIncident(feature.properties, d.lat, d.lng), { maxWidth: 280 });
           m.incidentData = feature.properties;
           layerGroups.incidents.addLayer(m);
           allIncidentMarkers.push(m);

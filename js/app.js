@@ -351,7 +351,7 @@ function loadLayers() {
     const p = f.properties;
     const lat = f.geometry.coordinates[1], lng = f.geometry.coordinates[0];
     const m = L.marker([lat, lng], { icon: createIncidentIcon(p.ashpersia) })
-      .bindPopup(popupIncident(p, lat, lng), { maxWidth: 280 });
+      .bindPopup(() => popupIncident(p, lat, lng), { maxWidth: 280 });
     m.incidentData = p;
     layerGroups.incidents.addLayer(m);
     allIncidentMarkers.push(m);
@@ -500,7 +500,7 @@ function filterIncidents(type) {
       icon = createIncidentIconByStatus(p.statusi);
     }
     const m = L.marker([lat, lng], { icon })
-      .bindPopup(popupIncident(p, lat, lng), { maxWidth: 280 });
+      .bindPopup(() => popupIncident(p, lat, lng), { maxWidth: 280 });
     layerGroups.incidents.addLayer(m);
   });
 }
@@ -522,7 +522,7 @@ function changeSymbolization(type) {
     const lat = f.geometry.coordinates[1], lng = f.geometry.coordinates[0];
     layerGroups.incidents.addLayer(
       L.marker([lat, lng], { icon })
-        .bindPopup(popupIncident(p, lat, lng), { maxWidth: 280 })
+        .bindPopup(() => popupIncident(p, lat, lng), { maxWidth: 280 })
     );
   });
   renderLegend(type);
@@ -2879,7 +2879,7 @@ function doAssign(id) {
   fbSaveIncident(newFeature);
 
   const m = L.marker([r.lat, r.lng], { icon: createIncidentIcon(ashpersia) })
-    .bindPopup(popupIncident(newFeature.properties, r.lat, r.lng), { maxWidth: 280 });
+    .bindPopup(() => popupIncident(newFeature.properties, r.lat, r.lng), { maxWidth: 280 });
   m.incidentData = newFeature.properties;
   layerGroups.incidents.addLayer(m);
   allIncidentMarkers.push(m);
