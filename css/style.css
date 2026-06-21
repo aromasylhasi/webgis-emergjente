@@ -1837,6 +1837,16 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
   background: rgba(99,102,241,.12); color: #818cf8;
   padding: 2px 8px; border-radius: 4px; font-size: 11px;
 }
+.gs-single-url-wrap {
+  display: flex; align-items: center; gap: 8px;
+  padding: 18px 16px;
+}
+.gs-single-url {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px; font-size: 12px;
+  font-family: var(--mono); color: var(--text1);
+  word-break: break-all; user-select: all;
+}
 .modal-wms {
   width: 540px; max-width: 96vw;
   max-height: 88vh; display: flex; flex-direction: column;

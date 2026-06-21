@@ -1099,53 +1099,21 @@ function switchWMSTab(tab) {
 }
 
 function buildGeoServerURLs() {
-  const base = (document.getElementById('gs-base-url')?.value || 'http://localhost:8080/geoserver').replace(/\/$/, '');
-  const ws = GS_WORKSPACE;
+  const base = 'http://localhost:8080/geoserver';
+  const ws   = GS_WORKSPACE;
+  const wmsUrl = `${base}/${ws}/wms`;
+  const wfsUrl = `${base}/${ws}/wfs`;
 
-  const capWMS = `${base}/${ws}/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities`;
-  const capWFS = `${base}/${ws}/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities`;
-
-  const layerRowHTML = (lyr, type) => {
-    const url = type === 'wms'
-      ? `${base}/${ws}/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${ws}:${lyr.name}&BBOX=20.01,41.85,21.80,43.28&WIDTH=800&HEIGHT=600&SRS=EPSG:4326&FORMAT=image/png&TRANSPARENT=true`
-      : `${base}/${ws}/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=${ws}:${lyr.name}&OUTPUTFORMAT=application/json`;
-    const safeId = `gs-url-${type}-${lyr.name}`;
-    return `
-      <div class="wfs-layer-card">
-        <div class="wfs-card-icon" style="background:${lyr.color}20;color:${lyr.color}">
-          <i class="ti ${lyr.icon}"></i>
-        </div>
-        <div class="wfs-card-info">
-          <div class="wfs-card-title">${lyr.title}</div>
-          <div class="wfs-card-count" style="font-size:10px;color:var(--text3)">${ws}:${lyr.name}</div>
-          <code class="wfs-card-url" id="${safeId}" style="font-size:9px">${url}</code>
-        </div>
-        <button class="wfs-copy-btn" onclick="copyGSUrl('${safeId}','${lyr.title}')" title="Kopjo URL-n">
-          <i class="ti ti-copy"></i><span>Kopjo</span>
-        </button>
-      </div>`;
-  };
-
-  const capRow = (url, label) => `
-    <div class="wms-url-row" style="margin-bottom:8px">
-      <div style="font-size:10px;color:var(--text3);margin-bottom:3px">${label}</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <code class="wfs-card-url" style="flex:1;font-size:9px">${url}</code>
-        <button class="wfs-copy-btn" style="flex-shrink:0" onclick="copyText('${url}','URL u kopjua!')">
-          <i class="ti ti-copy"></i><span>Kopjo</span>
-        </button>
-      </div>
+  const urlBlock = (url, id) => `
+    <div class="gs-single-url-wrap">
+      <code class="gs-single-url" id="${id}">${url}</code>
+      <button class="wfs-copy-btn" onclick="copyGSUrl('${id}','')">
+        <i class="ti ti-copy"></i><span>Kopjo</span>
+      </button>
     </div>`;
 
-  document.getElementById('gs-wms-body').innerHTML =
-    capRow(capWMS, 'GetCapabilities — lista e të gjitha shtresave WMS') +
-    `<div class="wms-section-label" style="margin:10px 0 6px"><i class="ti ti-layers"></i> GetMap — URL për secilën shtresë</div>` +
-    GS_LAYERS.map(l => layerRowHTML(l, 'wms')).join('');
-
-  document.getElementById('gs-wfs-body').innerHTML =
-    capRow(capWFS, 'GetCapabilities — lista e të gjitha shtresave WFS') +
-    `<div class="wms-section-label" style="margin:10px 0 6px"><i class="ti ti-layers"></i> GetFeature — URL për secilën shtresë (GeoJSON)</div>` +
-    GS_LAYERS.map(l => layerRowHTML(l, 'wfs')).join('');
+  document.getElementById('gs-wms-body').innerHTML = urlBlock(wmsUrl, 'gs-url-wms');
+  document.getElementById('gs-wfs-body').innerHTML = urlBlock(wfsUrl, 'gs-url-wfs');
 }
 
 function copyGSUrl(elId, title) {
