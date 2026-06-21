@@ -73,6 +73,7 @@ function fbListenVGI() {
           // Kap vetëm raportet e reja (pas ngarkimit fillestar)
           if (r.koha_unix <= _fbCutoff) return;
           if (VGI_REPORTS.find(x => x.id === r.id)) return;
+          if (r.statusi === 'refuzuar' || r.statusi === 'caktuar') return;
 
           VGI_REPORTS.push(r);
 
