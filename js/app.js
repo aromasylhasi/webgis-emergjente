@@ -357,16 +357,9 @@ function loadLayers() {
     allIncidentMarkers.push(m);
   });
 
-  // VGI — ngarko të dhënat statike (filtro të refuzuarat/caktuarat + të fshehurat nga localStorage)
+  // VGI — mos krijo markera inicialë nga data.js; Firebase ngarkон statuset e sakta
   vgiMarkers = [];
   layerGroups.vgi = L.layerGroup();
-  const _vgiHiddenInit = new Set(JSON.parse(localStorage.getItem('vgi_hidden') || '[]'));
-  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar' && !_vgiHiddenInit.has(r.id)).forEach(r => {
-    const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
-      .bindPopup(popupVGI(r), { maxWidth: 280 });
-    layerGroups.vgi.addLayer(m);
-    vgiMarkers.push(m);
-  });
 
   // Firebase: ngarko raportet e ruajtura dhe aktivizo real-time
   fbLoadVGI(function() {
