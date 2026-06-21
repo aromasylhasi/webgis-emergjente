@@ -276,7 +276,7 @@ function popupIncident(p, lat, lng) {
   <div class="popup-row"><span class="popup-row-label">Ashpërsia</span><span class="sev-pill ${sevClass}">${sevText}</span></div>
   <div class="popup-row"><span class="popup-row-label">Koha</span><span class="popup-row-val">${p.koha}</span></div>
   <div class="popup-row"><span class="popup-row-label">Njësia</span><span class="popup-row-val">${p.njesia}</span></div>
-  <div class="popup-row"><span class="popup-row-label">Pershkrimi</span><span class="popup-row-val" style="font-size:10px;max-width:140px;text-align:right">${p.pershkrimi}</span></div>${nfPart}${p.id ? `<div class="popup-nf-wrap"><button class="popup-nf-btn" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#10b981" onclick="resolveIncident('${p.id}')"><i class="ti ti-circle-check"></i> Shëno si të zgjidhur</button></div>` : ''}`;
+  <div class="popup-row"><span class="popup-row-label">Pershkrimi</span><span class="popup-row-val" style="font-size:10px;max-width:140px;text-align:right">${p.pershkrimi}</span></div>${nfPart}${p.id && currentRole === 'operator' ? `<div class="popup-nf-wrap"><button class="popup-nf-btn" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#10b981" onclick="resolveIncident('${p.id}')"><i class="ti ti-circle-check"></i> Shëno si të zgjidhur</button></div>` : ''}`;
 }
 
 function popupVGI(r) {
@@ -3007,6 +3007,7 @@ function removeIncidentById(id) {
 }
 
 function resolveIncident(id) {
+  if (currentRole !== 'operator') return;
   removeIncidentById(id);
   map.closePopup();
   fbResolveIncident(id);
