@@ -357,10 +357,11 @@ function loadLayers() {
     allIncidentMarkers.push(m);
   });
 
-  // VGI — ngarko të dhënat statike (filtro të refuzuarat/caktuarat)
+  // VGI — ngarko të dhënat statike (filtro të refuzuarat/caktuarat + të fshehurat nga localStorage)
   vgiMarkers = [];
   layerGroups.vgi = L.layerGroup();
-  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar').forEach(r => {
+  const _vgiHiddenInit = new Set(JSON.parse(localStorage.getItem('vgi_hidden') || '[]'));
+  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar' && !_vgiHiddenInit.has(r.id)).forEach(r => {
     const m = L.marker([r.lat, r.lng], { icon: icons.vgi, vgiId: r.id })
       .bindPopup(popupVGI(r), { maxWidth: 280 });
     layerGroups.vgi.addLayer(m);
@@ -2818,6 +2819,8 @@ function rejectVGI(id) {
   const r = VGI_REPORTS.find(r => r.id === id);
   if (r) r.statusi = 'refuzuar';
   fbUpdateVGI(id, { statusi: 'refuzuar' });
+  const _h = JSON.parse(localStorage.getItem('vgi_hidden') || '[]');
+  if (!_h.includes(id)) { _h.push(id); localStorage.setItem('vgi_hidden', JSON.stringify(_h)); }
   // Hiq markerin direkt
   const idx = vgiMarkers.findIndex(m => m.options.vgiId === id);
   if (idx !== -1) {
@@ -2850,6 +2853,8 @@ function doAssign(id) {
   r.njesia_caktuar = names.join(' + ');
   r.statusi = 'caktuar';
   fbUpdateVGI(id, { statusi: 'caktuar', njesia_caktuar: r.njesia_caktuar });
+  const _h = JSON.parse(localStorage.getItem('vgi_hidden') || '[]');
+  if (!_h.includes(id)) { _h.push(id); localStorage.setItem('vgi_hidden', JSON.stringify(_h)); }
 
   // Hiq markerin VGI direkt
   const vgiIdx = vgiMarkers.findIndex(mk => mk.options.vgiId === id);
@@ -2897,7 +2902,8 @@ function updateVGIMarkers() {
   if (map.hasLayer(layerGroups.vgi)) map.removeLayer(layerGroups.vgi);
   layerGroups.vgi.clearLayers();
   vgiMarkers = [];
-  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar').forEach(r => {
+  const _vgiHidden = new Set(JSON.parse(localStorage.getItem('vgi_hidden') || '[]'));
+  VGI_REPORTS.filter(r => r.statusi !== 'refuzuar' && r.statusi !== 'caktuar' && !_vgiHidden.has(r.id)).forEach(r => {
     const color = r.statusi === 'konfirmuar' ? '#059669' : '#db2777';
     const icon = L.divIcon({
       className: '',
